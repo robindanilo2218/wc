@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fixture y Resultados - Mundial de Fútbol</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+</head>
+<body>
+
+  <div id="offlineBanner" class="offline-banner">
+    Estás navegando en Modo Offline. Los datos guardados localmente están activos.
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="logo-container">
+        <span class="logo-title">MundialStats</span>
+        <span class="logo-sub">Estadísticas & Biorritmos</span>
+      </div>
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+          <li><a href="eliminatorias.html"><span>🌍</span> Eliminatorias</a></li>
+          <li class="active"><a href="resultadosyestadistica.html"><span>📅</span> Partidos y Fixture</a></li>
+          <li><a href="posicionesfinalesotabla.html"><span>📊</span> Posiciones Finales</a></li>
+          <li><a href="fasefinalllavesresultadosygoles.html"><span>🌳</span> Fase Final</a></li>
+          <li><a href="goleadores.html"><span>⚽</span> Goleadores</a></li>
+          <li><a href="premios.html"><span>🏆</span> Premios</a></li>
+          <li><a href="planteles_argentina.html"><span>👥</span> Planteles y Biorritmos</a></li>
+        </ul>
+      </nav>
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dark); text-align: center;">
+        PWA Offline 100% | 2026
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="title-section">
+          <h1>Partidos y Calendario</h1>
+          <p>Resultados oficiales e histórico de encuentros</p>
+        </div>
+        
+        <!-- Year Selector -->
+        <div class="wc-selector-container">
+          <span class="wc-selector-label">Mundial:</span>
+          <select id="wcYearSelect" class="wc-select">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </header>
+
+      <!-- Advanced Forecast Config Panel -->
+      <section id="simulationPanel" class="glass-card" style="display: none; padding: 1.5rem; flex-direction: column; gap: 1rem; border-color: rgba(255, 215, 0, 0.25); background: linear-gradient(135deg, rgba(20, 28, 47, 0.85) 0%, rgba(11, 15, 25, 0.85) 100%); margin-bottom: 1.5rem; box-shadow: var(--shadow-lg);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+            <h3 style="color: var(--accent); font-size: 1.25rem; margin: 0; display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-title);">
+              <span>⚙️</span> Tablero de Pronóstico y Simulación Avanzada
+            </h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Configura y combina los factores matemáticos en tiempo real.</span>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="simulateAll2026()">🎲 Autosimular TODO</button>
+            <button class="btn btn-muted" style="padding: 0.5rem 1rem; font-size: 0.8rem;" onclick="clearAll2026Scores()">🧹 Limpiar Marcadores</button>
+          </div>
+        </div>
+        
+        <!-- Toggle checkboxes for mathematical variables -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.2); padding: 1rem; border-radius: 8px; border: 1px solid var(--border-color); margin: 0.25rem 0;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+            <input type="checkbox" id="cfgElo" style="width: 16px; height: 16px; accent-color: var(--primary);" onchange="toggleSimConfig('useElo')"> ⚔️ Fuerza Base ELO
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+            <input type="checkbox" id="cfgBio" style="width: 16px; height: 16px; accent-color: var(--primary);" onchange="toggleSimConfig('useBiorhythm')"> 🧬 Biorritmos de Plantel
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+            <input type="checkbox" id="cfgHistory" style="width: 16px; height: 16px; accent-color: var(--primary);" onchange="toggleSimConfig('useHistory')"> ⭐ Tradición Histórica
+          </label>
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: var(--text-main);">
+            <input type="checkbox" id="cfgPoisson" style="width: 16px; height: 16px; accent-color: var(--primary);" onchange="toggleSimConfig('usePoisson')"> 🎲 Distribución Poisson (Azar)
+          </label>
+        </div>
+        
+        <div style="font-size: 0.75rem; color: var(--accent); display: flex; align-items: center; gap: 0.25rem; margin-top: -0.25rem;">
+          💡 <em>Nota: Si desactivas la Distribución de Poisson, la simulación pasará a ser determinista y exacta ( Expectativa de Goles redondeada ).</em>
+        </div>
+      </section>
+
+      <!-- Filters -->
+      <section class="toggle-panel" style="justify-content: flex-start; gap: 1.5rem;">
+        <div class="form-group" style="min-width: 200px;">
+          <label for="roundFilter">Filtrar por Ronda:</label>
+          <select id="roundFilter" class="form-control" onchange="filterMatches()">
+            <option value="all">Todas las rondas</option>
+            <option value="group">Fase de Grupos</option>
+            <option value="playoffs">Fase Eliminatoria</option>
+          </select>
+        </div>
+        <div class="form-group" style="min-width: 200px;">
+          <label for="teamFilter">Filtrar por Selección:</label>
+          <select id="teamFilter" class="form-control" onchange="filterMatches()">
+            <option value="all">Todas las selecciones</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- Matches Grid -->
+      <section class="glass-card">
+        <div class="glass-card-header">
+          <h3 class="glass-card-title"><span>⚽</span> Encuentros</h3>
+          <span id="matchesCount" style="font-size: 0.9rem; color: var(--text-muted);">Cargando partidos...</span>
+        </div>
+        <div id="matchesContainer" class="matches-grid">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let allMatches = [];
+    
+    async function renderPage(year) {
+      const data = await loadWorldCupData(year);
+      if (!data) return;
+      
+      allMatches = data.matches || [];
+      
+      // Setup Team Filter dropdown list
+      const teamList = new Set();
+      allMatches.forEach(m => {
+        if (m.team1 && !m.team1.match(/^[0-9]/) && !m.team1.startsWith("W") && !m.team1.startsWith("L")) teamList.add(m.team1);
+        if (m.team2 && !m.team2.match(/^[0-9]/) && !m.team2.startsWith("W") && !m.team2.startsWith("L")) teamList.add(m.team2);
+      });
+      
+      const teamFilterSelect = document.getElementById('teamFilter');
+      teamFilterSelect.innerHTML = '<option value="all">Todas las selecciones</option>' + 
+        Array.from(teamList).sort().map(team => `<option value="${team}">${team}</option>`).join('');
+      
+      // Toggle Simulation panel for 2026
+      const simPanel = document.getElementById('simulationPanel');
+      if (year === '2026') {
+        simPanel.style.display = 'flex';
+        // Initialize checkboxes based on saved config
+        document.getElementById('cfgElo').checked = state.simulationConfig.useElo;
+        document.getElementById('cfgBio').checked = state.simulationConfig.useBiorhythm;
+        document.getElementById('cfgHistory').checked = state.simulationConfig.useHistory;
+        document.getElementById('cfgPoisson').checked = state.simulationConfig.usePoisson;
+      } else {
+        simPanel.style.display = 'none';
+      }
+      
+      filterMatches();
+    }
+
+    function toggleSimConfig(key) {
+      const checkboxMap = {
+        'useElo': 'cfgElo',
+        'useBiorhythm': 'cfgBio',
+        'useHistory': 'cfgHistory',
+        'usePoisson': 'cfgPoisson'
+      };
+      const elementId = checkboxMap[key];
+      const val = document.getElementById(elementId).checked;
+      state.simulationConfig[key] = val;
+      localStorage.setItem('wc_simulation_config', JSON.stringify(state.simulationConfig));
+      
+      // Reactive updates of forecasts instantly in the UI
+      filterMatches();
+    }
+
+    function filterMatches() {
+      const roundVal = document.getElementById('roundFilter').value;
+      const teamVal = document.getElementById('teamFilter').value;
+      const container = document.getElementById('matchesContainer');
+      
+      let filtered = allMatches;
+      
+      if (roundVal === 'group') {
+        filtered = filtered.filter(m => m.group || m.round.includes("Matchday"));
+      } else if (roundVal === 'playoffs') {
+        filtered = filtered.filter(m => !m.group && !m.round.includes("Matchday"));
+      }
+      
+      if (teamVal !== 'all') {
+        filtered = filtered.filter(m => m.team1 === teamVal || m.team2 === teamVal);
+      }
+      
+      document.getElementById('matchesCount').innerText = `${filtered.length} partidos encontrados`;
+      
+      if (filtered.length === 0) {
+        container.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding: 3rem 0; color:var(--text-muted);">No se encontraron partidos para los filtros aplicados.</p>`;
+        return;
+      }
+      
+      container.innerHTML = filtered.map((match, idx) => {
+        // Find absolute index in allMatches
+        const absIdx = allMatches.findIndex(m => m.date === match.date && m.team1 === match.team1 && m.team2 === match.team2);
+        
+        const team1Name = resolvePlayoffTeamName(match.team1, allMatches);
+        const team2Name = resolvePlayoffTeamName(match.team2, allMatches);
+        
+        const is2026 = state.currentYear === '2026';
+        let scoreUI = '';
+        
+        if (is2026) {
+          const score1 = match.score && match.score.ft ? match.score.ft[0] : '';
+          const score2 = match.score && match.score.ft ? match.score.ft[1] : '';
+          
+          scoreUI = `
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <input type="number" id="s1_${absIdx}" class="score-input" value="${score1}" min="0" placeholder="-" onchange="updateMatchScore(${absIdx})">
+              <span style="font-weight:700;">:</span>
+              <input type="number" id="s2_${absIdx}" class="score-input" value="${score2}" min="0" placeholder="-" onchange="updateMatchScore(${absIdx})">
+            </div>
+          `;
+        } else {
+          const scoreDisplay = match.score && match.score.ft ? `${match.score.ft[0]} - ${match.score.ft[1]}` : 'vs';
+          const penDisplay = match.score && match.score.p ? `<br><small style="color:var(--accent);">Pen: ${match.score.p[0]}-${match.score.p[1]}</small>` : '';
+          scoreUI = `
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <span class="score-display">${scoreDisplay}</span>
+              ${penDisplay}
+            </div>
+          `;
+        }
+        
+        let simButtonHTML = '';
+        if (is2026) {
+          simButtonHTML = `
+            <div style="display:flex; gap:0.5rem; width:100%; margin-top:0.5rem;">
+              <button class="btn btn-primary" style="flex:1; padding:0.4rem; font-size:0.75rem;" onclick="simulateSingleMatch(${absIdx})">🎲 Simular</button>
+              <a href="planteles_argentina.html?team1=${encodeURIComponent(team1Name)}&team2=${encodeURIComponent(team2Name)}&date=${match.date}" class="btn btn-accent" style="flex:1; padding:0.4rem; font-size:0.75rem; text-align:center;">👥 Pronosticar</a>
+            </div>
+          `;
+        } else {
+          simButtonHTML = `
+            <div style="width:100%; margin-top:0.5rem; text-align:center;">
+              <a href="planteles_argentina.html?team1=${encodeURIComponent(team1Name)}&team2=${encodeURIComponent(team2Name)}&date=${match.date}" class="btn btn-accent" style="display:block; padding:0.4rem; font-size:0.75rem;">👥 Ver Biorritmos</a>
+            </div>
+          `;
+        }
+        
+        // Calculate statistical forecast breakdown
+        let forecastUI = '';
+        if (team1Name !== 'Pendiente' && team2Name !== 'Pendiente' && !team1Name.startsWith("W") && !team2Name.startsWith("W") && !team1Name.startsWith("L") && !team2Name.startsWith("L")) {
+          const fDetails = getForecastDetails(team1Name, team2Name, match.date);
+          
+          const eloStr = `⚔️ Elo: ${fDetails.eloDiff > 0 ? '+' : ''}${fDetails.eloDiff}`;
+          const bioStr = `🧬 Bio: ${fDetails.bioDiff > 0 ? '+' : ''}${Math.round(fDetails.bioDiff / 4)}%`;
+          const histStr = `🏆 Trad: ${fDetails.titles1}★ vs ${fDetails.titles2}★`;
+          const expStr = `🥅 Exp: ${fDetails.lambda1} - ${fDetails.lambda2}`;
+
+          const eloActive = fDetails.activeConfig.useElo ? '' : 'style="opacity:0.35; text-decoration:line-through;"';
+          const bioActive = fDetails.activeConfig.useBiorhythm ? '' : 'style="opacity:0.35; text-decoration:line-through;"';
+          const histActive = fDetails.activeConfig.useHistory ? '' : 'style="opacity:0.35; text-decoration:line-through;"';
+          const poissonActive = fDetails.activeConfig.usePoisson ? 'title="Simulación Probabilística de Poisson Activa"' : 'title="Simulación Determinista Sin Azar Activa" style="color:var(--accent);"';
+
+          forecastUI = `
+            <div class="match-forecast-breakdown" style="display:flex; justify-content:space-around; align-items:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:0.45rem 0.5rem; margin: 0.5rem 0; font-size:0.7rem; color:var(--text-muted); gap:0.25rem; flex-wrap:wrap; transition: var(--transition);">
+              <span ${eloActive} title="Diferencia de Fuerza Base ELO (Activable)">${eloStr}</span>
+              <span ${bioActive} title="Diferencia de Biorritmo Promedio del Plantel (Activable)">${bioStr}</span>
+              <span ${histActive} title="Títulos de la Copa del Mundo">${histStr}</span>
+              <span ${poissonActive}>${expStr} ${fDetails.activeConfig.usePoisson ? '🎲' : '⚙️'}</span>
+            </div>
+          `;
+        }
+        
+        const roundName = match.group ? `${match.round} (${match.group})` : match.round;
+        
+        return `
+          <div class="match-card">
+            <div class="match-header">
+              <span>📅 ${match.date} ${match.time ? `| ⏰ ${match.time}` : ''}</span>
+              <span class="match-venue">📍 ${match.ground || 'Estadio'}</span>
+            </div>
+            
+            <div style="font-size:0.75rem; color:var(--accent); font-weight:700; text-transform:uppercase; text-align:center;">
+              ${roundName}
+            </div>
+            
+            <div class="match-teams">
+              <div class="match-team-row">
+                <div class="match-team-info">
+                  <span class="team-flag">${getFlag(team1Name)}</span>
+                  <span>${team1Name}</span>
+                </div>
+              </div>
+              <div style="display:flex; justify-content:center; margin: 0.25rem 0;">
+                ${scoreUI}
+              </div>
+              <div class="match-team-row">
+                <div class="match-team-info">
+                  <span class="team-flag">${getFlag(team2Name)}</span>
+                  <span>${team2Name}</span>
+                </div>
+              </div>
+            </div>
+            
+            ${forecastUI}
+            
+            ${simButtonHTML}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Save user score in LocalStorage and trigger recalculation
+    function updateMatchScore(idx) {
+      const s1Val = document.getElementById(`s1_${idx}`).value;
+      const s2Val = document.getElementById(`s2_${idx}`).value;
+      
+      if (s1Val === '' || s2Val === '') {
+        delete state.userScores[`match_${idx}`];
+      } else {
+        const goal1 = parseInt(s1Val);
+        const goal2 = parseInt(s2Val);
+        
+        state.userScores[`match_${idx}`] = {
+          score: [goal1, goal2],
+          goals1: [],
+          goals2: []
+        };
+      }
+      
+      localStorage.setItem('wc_user_scores', JSON.stringify(state.userScores));
+      
+      // Update local array object
+      if (s1Val !== '' && s2Val !== '') {
+        allMatches[idx].score = { ft: [parseInt(s1Val), parseInt(s2Val)] };
+      } else {
+        delete allMatches[idx].score;
+      }
+      
+      // Redraw to dynamically cascade team name resolutions!
+      filterMatches();
+    }
+
+    // Simulate score using biorhythms for a single match
+    function simulateSingleMatch(idx) {
+      const match = allMatches[idx];
+      const team1 = resolvePlayoffTeamName(match.team1, allMatches);
+      const team2 = resolvePlayoffTeamName(match.team2, allMatches);
+      const result = simulateMatchWithBiorhythm(team1, team2, match.date);
+      
+      document.getElementById(`s1_${idx}`).value = result[0];
+      document.getElementById(`s2_${idx}`).value = result[1];
+      
+      updateMatchScore(idx);
+    }
+
+    // Simulate all matches of 2026 (including all playoff rounds sequentially)
+    function simulateAll2026() {
+      runFull2026Simulation(allMatches);
+      filterMatches();
+    }
+
+    // Reset scores
+    function clearAll2026Scores() {
+      state.userScores = {};
+      localStorage.removeItem('wc_user_scores');
+      allMatches.forEach(m => {
+        delete m.score;
+      });
+      filterMatches();
+    }
+
+    // Init
+    setupYearSelector(renderPage);
+    renderPage(state.currentYear);
+  </script>
+</body>
+</html>

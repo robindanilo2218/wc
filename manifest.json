@@ -1,0 +1,22 @@
+{
+  "name": "Estadísticas del Mundial & Biorritmos",
+  "short_name": "MundialBiorritmos",
+  "description": "Estadísticas de la Copa del Mundo (1930-2026), seguimiento en vivo y cálculo de biorritmos de jugadores para pronosticar partidos.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#00e676",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "imagenes/logo_192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "imagenes/logo_512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

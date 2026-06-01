@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Premios del Mundial - Estadísticas</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+</head>
+<body>
+
+  <div id="offlineBanner" class="offline-banner">
+    Estás navegando en Modo Offline. Los datos guardados localmente están activos.
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="logo-container">
+        <span class="logo-title">MundialStats</span>
+        <span class="logo-sub">Estadísticas & Biorritmos</span>
+      </div>
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+          <li><a href="eliminatorias.html"><span>🌍</span> Eliminatorias</a></li>
+          <li><a href="resultadosyestadistica.html"><span>📅</span> Partidos y Fixture</a></li>
+          <li><a href="posicionesfinalesotabla.html"><span>📊</span> Posiciones Finales</a></li>
+          <li><a href="fasefinalllavesresultadosygoles.html"><span>🌳</span> Fase Final</a></li>
+          <li><a href="goleadores.html"><span>⚽</span> Goleadores</a></li>
+          <li class="active"><a href="premios.html"><span>🏆</span> Premios</a></li>
+          <li><a href="planteles_argentina.html"><span>👥</span> Planteles y Biorritmos</a></li>
+        </ul>
+      </nav>
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dark); text-align: center;">
+        PWA Offline 100% | 2026
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="title-section">
+          <h1>Premios y Distinciones</h1>
+          <p>Ganadores históricos del Balón de Oro, Bota de Oro y Guante de Oro</p>
+        </div>
+        
+        <!-- Year Selector -->
+        <div class="wc-selector-container">
+          <span class="wc-selector-label">Mundial:</span>
+          <select id="wcYearSelect" class="wc-select">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </header>
+
+      <!-- Live simulator option for 2026 -->
+      <section id="awardsEditPanel" class="toggle-panel" style="display: none;">
+        <span class="toggle-label">Premios 2026:</span>
+        <div class="option-group">
+          <button class="btn btn-primary" onclick="autoCalculate2026Awards()">⚡ Auto-calcular por Simulación</button>
+          <button class="btn btn-muted" onclick="reset2026Awards()" style="margin-left: 0.5rem;">🧹 Limpiar</button>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); width: 100%; margin-top: 0.5rem;">
+          * Calcula automáticamente la Bota de Oro según los goleadores simulados, y el Balón/Guante de Oro en base al campeón.
+        </p>
+      </section>
+
+      <!-- Awards Cards Grid -->
+      <section style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+        
+        <!-- Golden Ball -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚽✨</div>
+          <h3 style="color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase;">Balón de Oro</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Mejor Jugador del Torneo</span>
+          <h2 id="awardGoldenBall" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Cargando...</h2>
+          <span id="awardGoldenBallTeam" style="font-weight: 600;">--</span>
+        </div>
+
+        <!-- Golden Boot -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🥾⚽</div>
+          <h3 style="color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase;">Bota de Oro</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Máximo Goleador</span>
+          <h2 id="awardGoldenBoot" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Cargando...</h2>
+          <span id="awardGoldenBootTeam" style="font-weight: 600;">--</span>
+        </div>
+
+        <!-- Golden Glove -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🧤⚽</div>
+          <h3 style="color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase;">Guante de Oro</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Mejor Guardameta</span>
+          <h2 id="awardGoldenGlove" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Cargando...</h2>
+          <span id="awardGoldenGloveTeam" style="font-weight: 600;">--</span>
+        </div>
+
+        <!-- Best Young Player -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏃‍♂️🌟</div>
+          <h3 style="color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase;">Jugador Joven</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Mejor Jugador &lt; 21 años</span>
+          <h2 id="awardYoungPlayer" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Cargando...</h2>
+          <span id="awardYoungPlayerTeam" style="font-weight: 600;">--</span>
+        </div>
+
+        <!-- Fair Play -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">🤝🕊️</div>
+          <h3 style="color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase;">Fair Play</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Premio al Juego Limpio</span>
+          <h2 id="awardFairPlay" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Cargando...</h2>
+          <span id="awardFairPlayTeam" style="font-weight: 600;">--</span>
+        </div>
+
+        <!-- Best Team / Curated Ideal lineup description -->
+        <div class="glass-card" style="text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+          <div style="font-size: 3rem; margin-bottom: 0.5rem;">📋🛡️</div>
+          <h3 style="color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase;">Equipo Ideal</h3>
+          <span style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem;">Alineación de Estrellas</span>
+          <h2 id="awardIdealTeam" style="font-size: 1.1rem; line-height: 1.4; padding: 0.5rem;">Cargando...</h2>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let currentMatches = [];
+
+    // Curated Awards Database
+    const awardsDb = {
+      '2022': {
+        ball: 'Lionel Messi', ballTeam: 'Argentina',
+        boot: 'Kylian Mbappé (8 goles)', bootTeam: 'Francia',
+        glove: 'Emiliano Martínez', gloveTeam: 'Argentina',
+        young: 'Enzo Fernández', youngTeam: 'Argentina',
+        fair: 'Inglaterra', fairTeam: 'Inglaterra',
+        ideal: 'Martinez; Hakimi, Gvardiol, Otamendi, Theo Hernandez; Amrabat, Modric, Griezmann; Messi, Mbappe, Alvarez'
+      },
+      '2018': {
+        ball: 'Luka Modrić', ballTeam: 'Croacia',
+        boot: 'Harry Kane (6 goles)', bootTeam: 'Inglaterra',
+        glove: 'Thibaut Courtois', gloveTeam: 'Bélgica',
+        young: 'Kylian Mbappé', youngTeam: 'Francia',
+        fair: 'España', fairTeam: 'España',
+        ideal: 'Courtois; Trippier, Varane, Lovren, Ashley Young; Modric, Kante, Pogba; Hazard, Kane, Mbappe'
+      },
+      '2014': {
+        ball: 'Lionel Messi', ballTeam: 'Argentina',
+        boot: 'James Rodríguez (6 goles)', bootTeam: 'Colombia',
+        glove: 'Manuel Neuer', gloveTeam: 'Alemania',
+        young: 'Paul Pogba', youngTeam: 'Francia',
+        fair: 'Colombia', fairTeam: 'Colombia',
+        ideal: 'Neuer; Lahm, Hummels, Thiago Silva, Rojo; Kroos, Mascherano, James Rodriguez; Messi, Muller, Neymar'
+      },
+      '2010': {
+        ball: 'Diego Forlán', ballTeam: 'Uruguay',
+        boot: 'Thomas Müller (5 goles)', bootTeam: 'Alemania',
+        glove: 'Iker Casillas', gloveTeam: 'España',
+        young: 'Thomas Müller', youngTeam: 'Alemania',
+        fair: 'España', fairTeam: 'España',
+        ideal: 'Casillas; Ramos, Puyol, Maicon, Lahm; Iniesta, Xavi, Schweinsteiger, Sneijder; Forlan, Villa'
+      },
+      '2006': {
+        ball: 'Zinedine Zidane', ballTeam: 'Francia',
+        boot: 'Miroslav Klose (5 goles)', bootTeam: 'Alemania',
+        glove: 'Gianluigi Buffon', gloveTeam: 'Italia',
+        young: 'Lukas Podolski', youngTeam: 'Alemania',
+        fair: 'España / Brasil', fairTeam: 'FIFA',
+        ideal: 'Buffon; Cannavaro, Zambrotta, Lahm, Carvalho; Pirlo, Gattuso, Zidane, Vieira; Klose, Henry'
+      },
+      '2002': {
+        ball: 'Oliver Kahn', ballTeam: 'Alemania',
+        boot: 'Ronaldo Nazário (8 goles)', bootTeam: 'Brasil',
+        glove: 'Oliver Kahn', gloveTeam: 'Alemania',
+        young: 'Landon Donovan', youngTeam: 'Estados Unidos',
+        fair: 'Bélgica', fairTeam: 'Bélgica',
+        ideal: 'Kahn; Campbell, Hierro, Alpay; Roberto Carlos, Rivaldo, Ronaldinho, Ballack; Ronaldo, Klose, Diouf'
+      },
+      '1998': {
+        ball: 'Ronaldo Nazário', ballTeam: 'Brasil',
+        boot: 'Davor Šuker (6 goles)', bootTeam: 'Croacia',
+        glove: 'Fabien Barthez', gloveTeam: 'Francia',
+        young: 'Michael Owen', youngTeam: 'Inglaterra',
+        fair: 'Inglaterra / Francia', fairTeam: 'FIFA',
+        ideal: 'Barthez; Desailly, Thuram, Carlos; Dunga, Rivaldo, Zidane, Davids; Ronaldo, Suker, Batistuta'
+      },
+      '1994': {
+        ball: 'Romário', ballTeam: 'Brasil',
+        boot: 'Stoichkov (6g) / Salenko (6g)', bootTeam: 'Bulgaria / Rusia',
+        glove: 'Michel Preud\'homme', gloveTeam: 'Bélgica',
+        young: 'Marc Overmars', youngTeam: 'Paises Bajos',
+        fair: 'Brasil', fairTeam: 'Brasil',
+        ideal: 'Preud\'homme; Jorginho, Santos, Maldini; Balakov, Dunga, Hagi, Brolin; Romario, Stoichkov, Baggio'
+      },
+      '1990': {
+        ball: 'Salvatore Schillaci', ballTeam: 'Italia',
+        boot: 'Salvatore Schillaci (6 goles)', bootTeam: 'Italia',
+        glove: 'Sergio Goycochea', gloveTeam: 'Argentina',
+        young: 'Robert Prosinečki', youngTeam: 'Yugoslavia',
+        fair: 'Inglaterra', fairTeam: 'Inglaterra',
+        ideal: 'Goycochea; Brehme, Maldini, Baresi; Matthäus, Gascoigne, Scifo, Maradona; Schillaci, Klinsmann, Milla'
+      },
+      '1986': {
+        ball: 'Diego Maradona', ballTeam: 'Argentina',
+        boot: 'Gary Lineker (6 goles)', bootTeam: 'Inglaterra',
+        glove: 'Harald Schumacher', gloveTeam: 'Alemania Occidental',
+        young: 'Enzo Scifo', youngTeam: 'Bélgica',
+        fair: 'Brasil', fairTeam: 'Brasil',
+        ideal: 'Schumacher; Amoros, Brown, Julio Cesar; Maradona, Platini, Scifo, Burruchaga; Lineker, Careca, Butragueño'
+      },
+      '1982': {
+        ball: 'Paolo Rossi', ballTeam: 'Italia',
+        boot: 'Paolo Rossi (6 goles)', bootTeam: 'Italia',
+        glove: 'Dino Zoff', gloveTeam: 'Italia',
+        young: 'Manuel Amoros', youngTeam: 'Francia',
+        fair: 'Brasil', fairTeam: 'Brasil',
+        ideal: 'Zoff; Gentile, Collovati, Passarella, Junior; Tardelli, Falcao, Platini, Zico; Rossi, Boniek'
+      },
+      '1978': {
+        ball: 'Mario Kempes', ballTeam: 'Argentina',
+        boot: 'Mario Kempes (6 goles)', bootTeam: 'Argentina',
+        glove: 'Ubaldo Fillol', gloveTeam: 'Argentina',
+        young: 'Antonio Cabrini', youngTeam: 'Italia',
+        fair: 'Argentina', fairTeam: 'Argentina',
+        ideal: 'Fillol; Krol, Passarella, Carlos Alberto; Dirceu, Ardiles, Neeskens; Kempes, Rossi, Rensenbrink, Bettega'
+      },
+      '1974': {
+        ball: 'Johan Cruyff', ballTeam: 'Paises Bajos',
+        boot: 'Grzegorz Lato (7 goles)', bootTeam: 'Polonia',
+        glove: 'Sepp Maier', gloveTeam: 'Alemania Occidental',
+        young: 'Władysław Żmuda', youngTeam: 'Polonia',
+        fair: 'Alemania Occidental', fairTeam: 'Alemania Occidental',
+        ideal: 'Maier; Beckenbauer, Breitner, Krol; Deyna, Neeskens, Overath; Cruyff, Lato, Gerd Muller, Szarmach'
+      },
+      '1970': {
+        ball: 'Pelé', ballTeam: 'Brasil',
+        boot: 'Gerd Müller (10 goles)', bootTeam: 'Alemania Occidental',
+        glove: 'Ladislao Mazurkiewicz', gloveTeam: 'Uruguay',
+        young: 'Teófilo Cubillas', youngTeam: 'Perú',
+        fair: 'Perú', fairTeam: 'Perú',
+        ideal: 'Mazurkiewicz; Carlos Alberto, Facchetti, Piazza; Gerson, Clodoaldo, Beckenbauer; Pele, Jairzinho, Muller, Cubillas'
+      },
+      '1966': {
+        ball: 'Bobby Charlton', ballTeam: 'Inglaterra',
+        boot: 'Eusébio (9 goles)', bootTeam: 'Portugal',
+        glove: 'Gordon Banks', gloveTeam: 'Inglaterra',
+        young: 'Franz Beckenbauer', youngTeam: 'Alemania Occidental',
+        fair: 'Inglaterra', fairTeam: 'Inglaterra',
+        ideal: 'Banks; Moore, Beckenbauer, Schulz, Facchetti; Charlton, Coluna, Peters; Eusebio, Hurst, Bene'
+      },
+      '1962': {
+        ball: 'Garrincha', ballTeam: 'Brasil',
+        boot: 'Garrincha / Vavá (4 goles)', bootTeam: 'Brasil',
+        glove: 'Viliam Schrojf', gloveTeam: 'Checoslovaquia',
+        young: 'Flórián Albert', youngTeam: 'Hungría',
+        fair: 'Chile', fairTeam: 'Chile',
+        ideal: 'Schrojf; Djalma Santos, Popluhar, Masopust, Pluskal; Amarildo, Zagallo, Garrincha; Vava, Sanchez, Albert'
+      },
+      '1958': {
+        ball: 'Didi', ballTeam: 'Brasil',
+        boot: 'Just Fontaine (13 goles)', bootTeam: 'Francia',
+        glove: 'Harry Gregg', gloveTeam: 'Irlanda del Norte',
+        young: 'Pelé', youngTeam: 'Brasil',
+        fair: 'Brasil', fairTeam: 'Brasil',
+        ideal: 'Gregg; Bellini, Nilton Santos, Orvar Bergmark; Didi, Kopa, Liedholm; Pele, Garrincha, Fontaine, Rahn'
+      },
+      '1954': {
+        ball: 'Ferenc Puskás', ballTeam: 'Hungría',
+        boot: 'Sándor Kocsis (11 goles)', bootTeam: 'Hungría',
+        glove: 'Gyula Grosics', gloveTeam: 'Hungría',
+        young: 'No oficial', youngTeam: 'FIFA',
+        fair: 'Alemania Occidental', fairTeam: 'Alemania Occidental',
+        ideal: 'Grosics; Buzansky, Lantos, Lorant; Bozsik, Hidegkuti, Walter; Puskas, Kocsis, Rahn, Czibor'
+      },
+      '1950': {
+        ball: 'Zizinho', ballTeam: 'Brasil',
+        boot: 'Ademir (8 goles)', bootTeam: 'Brasil',
+        glove: 'Roque Máspoli', gloveTeam: 'Uruguay',
+        young: 'No oficial', youngTeam: 'FIFA',
+        fair: 'Uruguay', fairTeam: 'Uruguay',
+        ideal: 'Maspoli; Tejera, Gonzalez, Andrade; Varela, Bauer, Zizinho; Ghiggia, Schiaffino, Ademir, Jair'
+      },
+      '1938': {
+        ball: 'Leônidas', ballTeam: 'Brasil',
+        boot: 'Leônidas (7 goles)', bootTeam: 'Brasil',
+        glove: 'František Plánička', gloveTeam: 'Checoslovaquia',
+        young: 'No oficial', youngTeam: 'FIFA',
+        fair: 'Hungría', fairTeam: 'Hungría',
+        ideal: 'Planicka; Foni, Rava, Serantoni; Andreolo, Locatelli, Colaussi; Piola, Leonidas, Zsengeller, Sarosi'
+      },
+      '1934': {
+        ball: 'Giuseppe Meazza', ballTeam: 'Italia',
+        boot: 'Oldřich Nejedlý (5 goles)', bootTeam: 'Checoslovaquia',
+        glove: 'Ricardo Zamora', gloveTeam: 'España',
+        young: 'No oficial', youngTeam: 'FIFA',
+        fair: 'Italia', fairTeam: 'Italia',
+        ideal: 'Zamora; Monzeglio, Allemandi, Ferraris; Monti, Bertolini, Guaita; Meazza, Nejedly, Schiavio, Conen'
+      },
+      '1930': {
+        ball: 'José Nasazzi', ballTeam: 'Uruguay',
+        boot: 'Guillermo Stábile (8 goles)', bootTeam: 'Argentina',
+        glove: 'Enrique Ballestrero', gloveTeam: 'Uruguay',
+        young: 'No oficial', youngTeam: 'FIFA',
+        fair: 'Uruguay', fairTeam: 'Uruguay',
+        ideal: 'Ballestrero; Nasazzi, Mascheroni, Andrade; Fernandez, Gestido, Scarone; Stabile, Cea, Ferreira, Andrade'
+      }
+    };
+
+    async function renderPage(year) {
+      const data = await loadWorldCupData(year);
+      if (!data) return;
+
+      currentMatches = data.matches || [];
+      
+      const panel = document.getElementById('awardsEditPanel');
+      if (year === '2026') {
+        panel.style.display = 'flex';
+      } else {
+        panel.style.display = 'none';
+      }
+
+      displayAwards();
+    }
+
+    function displayAwards() {
+      const year = state.currentYear;
+      
+      // Check if we have user scores simulated and stored in localStorage for 2026 awards
+      const saved2026Awards = JSON.parse(localStorage.getItem('wc_2026_awards') || 'null');
+      
+      if (year === '2026' && saved2026Awards) {
+        document.getElementById('awardGoldenBall').innerText = saved2026Awards.ball;
+        document.getElementById('awardGoldenBallTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(saved2026Awards.ballTeam)}</span> ${saved2026Awards.ballTeam}</span>`;
+        document.getElementById('awardGoldenBoot').innerText = saved2026Awards.boot;
+        document.getElementById('awardGoldenBootTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(saved2026Awards.bootTeam)}</span> ${saved2026Awards.bootTeam}</span>`;
+        document.getElementById('awardGoldenGlove').innerText = saved2026Awards.glove;
+        document.getElementById('awardGoldenGloveTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(saved2026Awards.gloveTeam)}</span> ${saved2026Awards.gloveTeam}</span>`;
+        document.getElementById('awardYoungPlayer').innerText = saved2026Awards.young;
+        document.getElementById('awardYoungPlayerTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(saved2026Awards.youngTeam)}</span> ${saved2026Awards.youngTeam}</span>`;
+        document.getElementById('awardFairPlay').innerText = saved2026Awards.fair;
+        document.getElementById('awardFairPlayTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(saved2026Awards.fairTeam)}</span> ${saved2026Awards.fairTeam}</span>`;
+        document.getElementById('awardIdealTeam').innerText = saved2026Awards.ideal;
+        return;
+      }
+      
+      if (year === '2026') {
+        document.getElementById('awardGoldenBall').innerText = "Pendiente";
+        document.getElementById('awardGoldenBallTeam').innerText = "Mundial en curso";
+        document.getElementById('awardGoldenBoot').innerText = "Pendiente";
+        document.getElementById('awardGoldenBootTeam').innerText = "Mundial en curso";
+        document.getElementById('awardGoldenGlove').innerText = "Pendiente";
+        document.getElementById('awardGoldenGloveTeam').innerText = "Mundial en curso";
+        document.getElementById('awardYoungPlayer').innerText = "Pendiente";
+        document.getElementById('awardYoungPlayerTeam').innerText = "Mundial en curso";
+        document.getElementById('awardFairPlay').innerText = "Pendiente";
+        document.getElementById('awardFairPlayTeam').innerText = "Mundial en curso";
+        document.getElementById('awardIdealTeam').innerText = "Se determinará al finalizar el torneo. Complete partidos para simular.";
+        return;
+      }
+      
+      // Historical awards lookup
+      const awards = awardsDb[year] || {
+        ball: 'Desconocido', ballTeam: 'N/A',
+        boot: 'Desconocido', bootTeam: 'N/A',
+        glove: 'Desconocido', gloveTeam: 'N/A',
+        young: 'Desconocido', youngTeam: 'N/A',
+        fair: 'Desconocido', fairTeam: 'N/A',
+        ideal: 'Sin registro del equipo ideal'
+      };
+      
+      document.getElementById('awardGoldenBall').innerText = awards.ball;
+      document.getElementById('awardGoldenBallTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(awards.ballTeam)}</span> ${awards.ballTeam}</span>`;
+      document.getElementById('awardGoldenBoot').innerText = awards.boot;
+      document.getElementById('awardGoldenBootTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(awards.bootTeam)}</span> ${awards.bootTeam}</span>`;
+      document.getElementById('awardGoldenGlove').innerText = awards.glove;
+      document.getElementById('awardGoldenGloveTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(awards.gloveTeam)}</span> ${awards.gloveTeam}</span>`;
+      document.getElementById('awardYoungPlayer').innerText = awards.young;
+      document.getElementById('awardYoungPlayerTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(awards.youngTeam)}</span> ${awards.youngTeam}</span>`;
+      document.getElementById('awardFairPlay').innerText = awards.fair;
+      document.getElementById('awardFairPlayTeam').innerHTML = `<span class="team-cell"><span class="team-flag">${getFlag(awards.fairTeam)}</span> ${awards.fairTeam}</span>`;
+      document.getElementById('awardIdealTeam').innerText = awards.ideal;
+    }
+
+    // Auto-calculate simulation award predictions for 2026
+    function autoCalculate2026Awards() {
+      // Find top scorers from current matches
+      const scorers = calculateTopScorers(currentMatches);
+      let bootWinner = "Pendiente";
+      let bootTeam = "N/A";
+      
+      if (scorers.length > 0) {
+        bootWinner = `${scorers[0].name} (${scorers[0].goals} goles)`;
+        bootTeam = scorers[0].team;
+      }
+      
+      // Determine Champion to award Golden Ball and glove
+      let champion = "Por disputarse";
+      const finalMatch = currentMatches.find(m => m.round === "Final");
+      if (finalMatch && finalMatch.score && finalMatch.score.ft) {
+        const s1 = finalMatch.score.ft[0];
+        const s2 = finalMatch.score.ft[1];
+        if (s1 > s2) champion = finalMatch.team1;
+        else if (s2 > s1) champion = finalMatch.team2;
+        else if (finalMatch.score.p) {
+          champion = finalMatch.score.p[0] > finalMatch.score.p[1] ? finalMatch.team1 : finalMatch.team2;
+        }
+      }
+      
+      // Seeded random award winners based on champion or top teams
+      const team = champion !== "Por disputarse" ? champion : "Mexico";
+      
+      // Seeded names for young/best players
+      const roster = generateRoster(team, '2026');
+      const mvp = roster[Math.floor(roster.length * 0.4)].name; // Seeded player
+      const gk = roster.find(p => p.pos === "Arquero")?.name || "Arquero";
+      const young = roster[Math.floor(roster.length * 0.75)].name;
+      
+      const calculatedAwards = {
+        ball: mvp,
+        ballTeam: team,
+        boot: bootWinner,
+        bootTeam: bootTeam,
+        glove: gk,
+        gloveTeam: team,
+        young: young,
+        youngTeam: team,
+        fair: 'Canadá',
+        fairTeam: 'Canadá',
+        ideal: `${gk} (${team}); Foyth (ARG), Stones (ING), Hummels (ALE); Bellingham (ING), Enzo (ARG), Pedri (ESP); Mbappe (FRA), Messi (ARG), ${mvp} (${team})`
+      };
+      
+      localStorage.setItem('wc_2026_awards', JSON.stringify(calculatedAwards));
+      displayAwards();
+    }
+
+    function reset2026Awards() {
+      localStorage.removeItem('wc_2026_awards');
+      displayAwards();
+    }
+
+    // Init
+    setupYearSelector(renderPage);
+    renderPage(state.currentYear);
+  </script>
+</body>
+</html>

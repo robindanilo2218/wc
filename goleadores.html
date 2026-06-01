@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goleadores - Mundial de Fútbol</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+</head>
+<body>
+
+  <div id="offlineBanner" class="offline-banner">
+    Estás navegando en Modo Offline. Los datos guardados localmente están activos.
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="logo-container">
+        <span class="logo-title">MundialStats</span>
+        <span class="logo-sub">Estadísticas & Biorritmos</span>
+      </div>
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+          <li><a href="eliminatorias.html"><span>🌍</span> Eliminatorias</a></li>
+          <li><a href="resultadosyestadistica.html"><span>📅</span> Partidos y Fixture</a></li>
+          <li><a href="posicionesfinalesotabla.html"><span>📊</span> Posiciones Finales</a></li>
+          <li><a href="fasefinalllavesresultadosygoles.html"><span>🌳</span> Fase Final</a></li>
+          <li class="active"><a href="goleadores.html"><span>⚽</span> Goleadores</a></li>
+          <li><a href="premios.html"><span>🏆</span> Premios</a></li>
+          <li><a href="planteles_argentina.html"><span>👥</span> Planteles y Biorritmos</a></li>
+        </ul>
+      </nav>
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dark); text-align: center;">
+        PWA Offline 100% | 2026
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="title-section">
+          <h1>Tabla de Goleadores</h1>
+          <p>Máximos anotadores y botas de oro del torneo</p>
+        </div>
+        
+        <!-- Year Selector -->
+        <div class="wc-selector-container">
+          <span class="wc-selector-label">Mundial:</span>
+          <select id="wcYearSelect" class="wc-select">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </header>
+
+      <!-- Toggle modes -->
+      <section class="toggle-panel">
+        <span class="toggle-label">Modo de Tabla:</span>
+        <div class="option-group">
+          <button id="btnCalcMode" class="option-btn active" onclick="setScorerMode('calculated')">📊 Calcular de Partidos</button>
+          <button id="btnHistMode" class="option-btn" onclick="setScorerMode('historical')">📜 Lista Oficial Histórica</button>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); width: 100%; margin-top: 0.5rem;">
+          * El modo dinámico escanea todos los goles registrados en los partidos del fixture para generar la tabla.
+        </p>
+      </section>
+
+      <!-- Scorers List -->
+      <section class="glass-card">
+        <div class="glass-card-header">
+          <h3 class="glass-card-title"><span>⚽</span> Goleadores del Mundial</h3>
+          <span id="scorersSub" style="font-size: 0.9rem; color: var(--text-muted);">Mundial Seleccionado</span>
+        </div>
+        <div class="table-container">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th style="width: 80px; text-align: center;">Posición</th>
+                <th>Jugador</th>
+                <th>Selección</th>
+                <th style="text-align: center;">Goles Totales</th>
+                <th style="text-align: center;">Penales</th>
+              </tr>
+            </thead>
+            <tbody id="scorersTableBody">
+              <!-- Dynamically populated -->
+              <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Cargando goleadores...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let scorerMode = 'calculated';
+    let currentMatches = [];
+
+    // Official Historical Scorers database (Fallback and curated)
+    const officialScorers = {
+      '2022': [
+        { name: 'Kylian Mbappé', team: 'Francia', goals: 8, penalties: 2 },
+        { name: 'Lionel Messi', team: 'Argentina', goals: 7, penalties: 4 },
+        { name: 'Olivier Giroud', team: 'Francia', goals: 4, penalties: 0 },
+        { name: 'Julián Álvarez', team: 'Argentina', goals: 4, penalties: 0 }
+      ],
+      '2018': [
+        { name: 'Harry Kane', team: 'Inglaterra', goals: 6, penalties: 3 },
+        { name: 'Antoine Griezmann', team: 'Francia', goals: 4, penalties: 3 },
+        { name: 'Romelu Lukaku', team: 'Bélgica', goals: 4, penalties: 0 },
+        { name: 'Kylian Mbappé', team: 'Francia', goals: 4, penalties: 0 },
+        { name: 'Cristiano Ronaldo', team: 'Portugal', goals: 4, penalties: 1 },
+        { name: 'Denis Cheryshev', team: 'Rusia', goals: 4, penalties: 0 }
+      ],
+      '2014': [
+        { name: 'James Rodríguez', team: 'Colombia', goals: 6, penalties: 1 },
+        { name: 'Thomas Müller', team: 'Alemania', goals: 5, penalties: 1 },
+        { name: 'Neymar Jr', team: 'Brasil', goals: 4, penalties: 1 },
+        { name: 'Lionel Messi', team: 'Argentina', goals: 4, penalties: 0 },
+        { name: 'Robin van Persie', team: 'Paises Bajos', goals: 4, penalties: 1 }
+      ],
+      '2010': [
+        { name: 'Thomas Müller', team: 'Alemania', goals: 5, penalties: 0 },
+        { name: 'David Villa', team: 'España', goals: 5, penalties: 1 },
+        { name: 'Wesley Sneijder', team: 'Paises Bajos', goals: 5, penalties: 0 },
+        { name: 'Diego Forlán', team: 'Uruguay', goals: 5, penalties: 1 }
+      ],
+      '2006': [
+        { name: 'Miroslav Klose', team: 'Alemania', goals: 5, penalties: 0 },
+        { name: 'Hernán Crespo', team: 'Argentina', goals: 3, penalties: 0 },
+        { name: 'Ronaldo Nazário', team: 'Brasil', goals: 3, penalties: 0 },
+        { name: 'Thierry Henry', team: 'Francia', goals: 3, penalties: 0 },
+        { name: 'Zinedine Zidane', team: 'Francia', goals: 3, penalties: 2 }
+      ],
+      '2002': [
+        { name: 'Ronaldo Nazário', team: 'Brasil', goals: 8, penalties: 0 },
+        { name: 'Miroslav Klose', team: 'Alemania', goals: 5, penalties: 0 },
+        { name: 'Rivaldo', team: 'Brasil', goals: 5, penalties: 1 }
+      ],
+      '1998': [
+        { name: 'Davor Šuker', team: 'Croacia', goals: 6, penalties: 1 },
+        { name: 'Gabriel Batistuta', team: 'Argentina', goals: 5, penalties: 2 },
+        { name: 'Christian Vieri', team: 'Italia', goals: 5, penalties: 0 }
+      ],
+      '1994': [
+        { name: 'Hristo Stoichkov', team: 'Bulgaria', goals: 6, penalties: 3 },
+        { name: 'Oleg Salenko', team: 'Rusia', goals: 6, penalties: 2 }
+      ],
+      '1990': [
+        { name: 'Salvatore Schillaci', team: 'Italia', goals: 6, penalties: 1 },
+        { name: 'Tomáš Skuhravý', team: 'Checoslovaquia', goals: 5, penalties: 0 }
+      ],
+      '1986': [
+        { name: 'Gary Lineker', team: 'Inglaterra', goals: 6, penalties: 0 },
+        { name: 'Diego Maradona', team: 'Argentina', goals: 5, penalties: 0 },
+        { name: 'Careca', team: 'Brasil', goals: 5, penalties: 1 },
+        { name: 'Emilio Butragueño', team: 'España', goals: 5, penalties: 1 }
+      ],
+      '1982': [
+        { name: 'Paolo Rossi', team: 'Italia', goals: 6, penalties: 0 },
+        { name: 'Karl-Heinz Rummenigge', team: 'Alemania Occidental', goals: 5, penalties: 0 }
+      ],
+      '1978': [
+        { name: 'Mario Kempes', team: 'Argentina', goals: 6, penalties: 0 },
+        { name: 'Teófilo Cubillas', team: 'Perú', goals: 5, penalties: 2 },
+        { name: 'Rob Rensenbrink', team: 'Paises Bajos', goals: 5, penalties: 4 }
+      ],
+      '1974': [
+        { name: 'Grzegorz Lato', team: 'Polonia', goals: 7, penalties: 0 },
+        { name: 'Andrzej Szarmach', team: 'Polonia', goals: 5, penalties: 0 },
+        { name: 'Johan Neeskens', team: 'Paises Bajos', goals: 5, penalties: 3 }
+      ],
+      '1970': [
+        { name: 'Gerd Müller', team: 'Alemania Occidental', goals: 10, penalties: 1 },
+        { name: 'Jairzinho', team: 'Brasil', goals: 7, penalties: 0 },
+        { name: 'Teófilo Cubillas', team: 'Perú', goals: 5, penalties: 0 }
+      ],
+      '1966': [
+        { name: 'Eusébio', team: 'Portugal', goals: 9, penalties: 4 },
+        { name: 'Helmut Haller', team: 'Alemania Occidental', goals: 6, penalties: 1 }
+      ],
+      '1962': [
+        { name: 'Garrincha', team: 'Brasil', goals: 4, penalties: 0 },
+        { name: 'Vavá', team: 'Brasil', goals: 4, penalties: 0 },
+        { name: 'Leonel Sánchez', team: 'Chile', goals: 4, penalties: 1 },
+        { name: 'Flórián Albert', team: 'Hungría', goals: 4, penalties: 0 },
+        { name: 'Valentin Ivanov', team: 'Unión Soviética', goals: 4, penalties: 1 },
+        { name: 'Dražan Jerković', team: 'Yugoslavia', goals: 4, penalties: 0 }
+      ],
+      '1958': [
+        { name: 'Just Fontaine', team: 'Francia', goals: 13, penalties: 0 },
+        { name: 'Pelé', team: 'Brasil', goals: 6, penalties: 0 },
+        { name: 'Helmut Rahn', team: 'Alemania Occidental', goals: 6, penalties: 0 }
+      ],
+      '1954': [
+        { name: 'Sándor Kocsis', team: 'Hungría', goals: 11, penalties: 0 },
+        { name: 'Josef Hügi', team: 'Suiza', goals: 6, penalties: 0 },
+        { name: 'Max Morlock', team: 'Alemania Occidental', goals: 6, penalties: 0 }
+      ],
+      '1950': [
+        { name: 'Ademir', team: 'Brasil', goals: 8, penalties: 0 },
+        { name: 'Oscar Míguez', team: 'Uruguay', goals: 5, penalties: 0 }
+      ],
+      '1938': [
+        { name: 'Leônidas', team: 'Brasil', goals: 7, penalties: 0 },
+        { name: 'Gyula Zsengellér', team: 'Hungría', goals: 5, penalties: 1 }
+      ],
+      '1934': [
+        { name: 'Oldřich Nejedlý', team: 'Checoslovaquia', goals: 5, penalties: 0 },
+        { name: 'Edmund Conen', team: 'Alemania', goals: 4, penalties: 0 },
+        { name: 'Angelo Schiavio', team: 'Italia', goals: 4, penalties: 0 }
+      ],
+      '1930': [
+        { name: 'Guillermo Stábile', team: 'Argentina', goals: 8, penalties: 0 },
+        { name: 'José Pedro Cea', team: 'Uruguay', goals: 5, penalties: 0 }
+      ]
+    };
+
+    async function renderPage(year) {
+      const data = await loadWorldCupData(year);
+      if (!data) return;
+
+      currentMatches = data.matches || [];
+      displayScorers();
+    }
+
+    function setScorerMode(mode) {
+      scorerMode = mode;
+      
+      document.getElementById('btnCalcMode').classList.toggle('active', mode === 'calculated');
+      document.getElementById('btnHistMode').classList.toggle('active', mode === 'historical');
+      
+      displayScorers();
+    }
+
+    function displayScorers() {
+      const tbody = document.getElementById('scorersTableBody');
+      const year = state.currentYear;
+      
+      // Official list mode
+      if (scorerMode === 'historical') {
+        const list = officialScorers[year] || [];
+        if (list.length > 0) {
+          tbody.innerHTML = list.map((scorer, idx) => `
+            <tr>
+              <td style="font-weight:700; text-align:center;">${idx + 1}.</td>
+              <td style="font-weight:600;">${scorer.name}</td>
+              <td><span class="team-cell"><span class="team-flag">${getFlag(scorer.team)}</span> ${scorer.team}</span></td>
+              <td style="text-align:center; font-weight:700; color:var(--accent);">${scorer.goals}</td>
+              <td style="text-align:center; color:var(--text-muted);">${scorer.penalties}</td>
+            </tr>
+          `).join('');
+          document.getElementById('scorersSub').innerText = "Lista Histórica Oficial (Botas de Oro)";
+          return;
+        } else {
+          // Fallback to calculation if no data
+          tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No hay lista oficial guardada para este año. Calculando desde partidos...</td></tr>`;
+          setTimeout(() => { setScorerMode('calculated'); }, 1000);
+          return;
+        }
+      }
+
+      // Calculated Mode (parse matches)
+      const calculatedList = calculateTopScorers(currentMatches);
+      
+      if (calculatedList.length > 0) {
+        tbody.innerHTML = calculatedList.slice(0, 30).map((scorer, idx) => `
+          <tr>
+            <td style="font-weight:700; text-align:center;">${idx + 1}.</td>
+            <td style="font-weight:600;">${scorer.name}</td>
+            <td><span class="team-cell"><span class="team-flag">${getFlag(scorer.team)}</span> ${scorer.team}</span></td>
+            <td style="text-align:center; font-weight:700; color:var(--accent);">${scorer.goals}</td>
+            <td style="text-align:center; color:var(--text-muted);">${scorer.penalties}</td>
+          </tr>
+        `).join('');
+        document.getElementById('scorersSub').innerText = "Calculada dinámicamente en base a goles de partidos";
+      } else {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No se encontraron goleadores registrados. Ingrese goles en los marcadores del Fixture o use el modo Autosimular.</td></tr>`;
+      }
+    }
+
+    // Init
+    setupYearSelector(renderPage);
+    renderPage(state.currentYear);
+  </script>
+</body>
+</html>

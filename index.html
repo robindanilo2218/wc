@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mundial de Fútbol - Estadísticas y Biorritmos</title>
+  <meta name="description" content="Información sobre la Copa del Mundo con campeones, resultados de los partidos, grupos, estadísticas, tabla de posiciones, goleadores y análisis de biorritmo de jugadores.">
+  <meta name="keywords" content="mundial, futbol, copa del mundo, resultados, posiciones, goleadores, biorritmo, estadisticas, conmebol, fifa, pwa">
+  
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+  <meta name="theme-color" content="#0b0f19">
+</head>
+<body>
+
+  <!-- Banner Offline -->
+  <div id="offlineBanner" class="offline-banner">
+    Estás navegando en Modo Offline. Los datos guardados localmente están activos.
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="logo-container">
+        <span class="logo-title">MundialStats</span>
+        <span class="logo-sub">Estadísticas & Biorritmos</span>
+      </div>
+      <nav>
+        <ul class="sidebar-menu">
+          <li class="active"><a href="index.html"><span>🏠</span> Inicio</a></li>
+          <li><a href="eliminatorias.html"><span>🌍</span> Eliminatorias</a></li>
+          <li><a href="resultadosyestadistica.html"><span>📅</span> Partidos y Fixture</a></li>
+          <li><a href="posicionesfinalesotabla.html"><span>📊</span> Posiciones Finales</a></li>
+          <li><a href="fasefinalllavesresultadosygoles.html"><span>🌳</span> Fase Final</a></li>
+          <li><a href="goleadores.html"><span>⚽</span> Goleadores</a></li>
+          <li><a href="premios.html"><span>🏆</span> Premios</a></li>
+          <li><a href="planteles_argentina.html"><span>👥</span> Planteles y Biorritmos</a></li>
+        </ul>
+      </nav>
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dark); text-align: center;">
+        PWA Offline 100% | 2026
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="title-section">
+          <h1 id="wcTitle">Mundial de Fútbol 2026</h1>
+          <p id="wcSubtitle">Canadá / Estados Unidos / México 2026</p>
+        </div>
+        
+        <!-- Year Selector -->
+        <div class="wc-selector-container">
+          <span class="wc-selector-label">Mundial:</span>
+          <select id="wcYearSelect" class="wc-select">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </header>
+
+      <!-- Dashboard Widgets -->
+      <section class="dashboard-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📍</div>
+          <div class="stat-info">
+            <span class="stat-label">Organizador</span>
+            <span class="stat-value" id="statHost" style="font-size: 1.1rem; font-weight: 700; margin-top: 0.25rem;">Cargando...</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">👥</div>
+          <div class="stat-info">
+            <span class="stat-label">Selecciones</span>
+            <span class="stat-value" id="statTeams">--</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⚽</div>
+          <div class="stat-info">
+            <span class="stat-label">Goles Totales</span>
+            <span class="stat-value" id="statGoals">--</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📈</div>
+          <div class="stat-info">
+            <span class="stat-label">Promedio Gol</span>
+            <span class="stat-value" id="statAverage">--</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Champion and General Info -->
+      <section style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; flex-wrap: wrap;" class="responsive-double-col">
+        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 250px; text-align: center;">
+          <h3 class="stat-label" style="font-size: 1rem; color: var(--accent); margin-bottom: 1rem; letter-spacing: 0.1em;">Campeón del Mundo</h3>
+          <div id="champFlag" style="font-size: 4.5rem; margin-bottom: 0.5rem;">👑</div>
+          <h2 id="champName" style="font-size: 2rem; font-family: var(--font-title); color: #fff;">Pendiente</h2>
+          <p id="champSub" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem;">Copa Mundial FIFA</p>
+        </div>
+
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <h3 class="glass-card-title"><span>📊</span> Cuadro de Honor</h3>
+          </div>
+          <div class="table-container">
+            <table class="premium-table">
+              <thead>
+                <tr>
+                  <th>Puesto</th>
+                  <th>Selección</th>
+                  <th>Etapa</th>
+                </tr>
+              </thead>
+              <tbody id="honorRollBody">
+                <!-- Dynamically filled -->
+                <tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Participating Teams List -->
+      <section class="glass-card">
+        <div class="glass-card-header">
+          <h3 class="glass-card-title"><span>🏳️</span> Selecciones Clasificadas</h3>
+        </div>
+        <div id="teamsClassifiedList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem;">
+          <!-- Loaded dynamically -->
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- App Logic Connection -->
+  <script src="js/app.js"></script>
+  <script>
+    // Page Rendering Logic
+    async function renderPage(year) {
+      const data = await loadWorldCupData(year);
+      if (!data) {
+        document.getElementById('statHost').innerText = "Sin conexión / Sin datos";
+        return;
+      }
+      
+      // Update Title / Subtitle
+      document.getElementById('wcTitle').innerText = data.name;
+      
+      // Compute general statistics
+      const matches = data.matches || [];
+      const playedMatches = matches.filter(m => m.score && m.score.ft);
+      const totalMatches = matches.length;
+      
+      let totalGoals = 0;
+      playedMatches.forEach(m => {
+        totalGoals += (m.score.ft[0] + m.score.ft[1]);
+      });
+      
+      const avgGoals = playedMatches.length > 0 ? (totalGoals / playedMatches.length).toFixed(2) : "0.00";
+      
+      // Extract unique teams
+      const teamList = new Set();
+      matches.forEach(m => {
+        if (m.team1 && !m.team1.match(/^[0-9]/) && !m.team1.startsWith("W")) teamList.add(m.team1);
+        if (m.team2 && !m.team2.match(/^[0-9]/) && !m.team2.startsWith("W")) teamList.add(m.team2);
+      });
+      
+      // Organizer and Details Map (Mock details for old years if not in JSON)
+      const hostMap = {
+        '2026': 'Canadá / EE.UU. / México',
+        '2022': 'Catar',
+        '2018': 'Rusia',
+        '2014': 'Brasil',
+        '2010': 'Sudáfrica',
+        '2006': 'Alemania',
+        '2002': 'Corea / Japón',
+        '1998': 'Francia',
+        '1994': 'Estados Unidos',
+        '1990': 'Italia',
+        '1986': 'México',
+        '1982': 'España',
+        '1978': 'Argentina',
+        '1974': 'Alemania Occidental',
+        '1970': 'México',
+        '1966': 'Inglaterra',
+        '1962': 'Chile',
+        '1958': 'Suecia',
+        '1954': 'Suiza',
+        '1950': 'Brasil',
+        '1938': 'Francia',
+        '1934': 'Italia',
+        '1930': 'Uruguay'
+      };
+      
+      const host = hostMap[year] || "Varios";
+      document.getElementById('statHost').innerText = host;
+      document.getElementById('statTeams').innerText = teamList.size || "--";
+      document.getElementById('statGoals').innerText = playedMatches.length > 0 ? totalGoals : "0";
+      document.getElementById('statAverage').innerText = avgGoals;
+      
+      // Update Champion Info
+      let championName = "Por determinar";
+      let championFlag = "🏆";
+      
+      // Find final match
+      const finalMatch = matches.find(m => m.round === "Final" || m.round === "Playoff for 1st Place" || m.round === "Final Tournament");
+      if (finalMatch && finalMatch.score && finalMatch.score.ft) {
+        const s1 = finalMatch.score.ft[0];
+        const s2 = finalMatch.score.ft[1];
+        
+        if (s1 > s2) {
+          championName = finalMatch.team1;
+        } else if (s2 > s1) {
+          championName = finalMatch.team2;
+        } else if (finalMatch.score.p) { // penalty shootout
+          championName = finalMatch.score.p[0] > finalMatch.score.p[1] ? finalMatch.team1 : finalMatch.team2;
+        }
+        championFlag = getFlag(championName);
+      } else if (year === '2026') {
+        championName = "Por disputarse";
+        championFlag = "⚽";
+      } else {
+        // Historical fallbacks if finals not explicitly resolved
+        const champions = {
+          '2022': 'Argentina', '2018': 'France', '2014': 'Germany', '2010': 'Spain',
+          '2006': 'Italy', '2002': 'Brazil', '1998': 'France', '1994': 'Brazil',
+          '1990': 'Germany', '1986': 'Argentina', '1982': 'Italy', '1978': 'Argentina',
+          '1974': 'Germany', '1970': 'Brazil', '1966': 'England', '1962': 'Brazil',
+          '1958': 'Brazil', '1954': 'Germany', '1950': 'Uruguay', '1938': 'Italy',
+          '1934': 'Italy', '1930': 'Uruguay'
+        };
+        championName = champions[year] || "Desconocido";
+        championFlag = getFlag(championName);
+      }
+      
+      document.getElementById('champName').innerText = championName;
+      document.getElementById('champFlag').innerText = championFlag;
+      
+      // Honor Roll Top 4
+      const overall = calculateOverallStandings(matches);
+      const honorRollBody = document.getElementById('honorRollBody');
+      
+      if (overall.length > 0 || year !== '2026') {
+        const top4Names = getTop4FromTournament(matches, year);
+        let honorHTML = "";
+        const positions = ["1º Campeón", "2º Subcampeón", "3º Tercer Puesto", "4º Cuarto Puesto"];
+        
+        top4Names.forEach((name, idx) => {
+          const stats = overall.find(t => t.name === name) || { pts: 0, pj: 0 };
+          const ptsText = name === "Por determinar" || name === "Por disputarse" ? "--" : `${stats.pts} pts (${stats.pj} PJ)`;
+          
+          honorHTML += `
+            <tr>
+              <td style="font-weight:700; color:var(--accent);">${positions[idx]}</td>
+              <td><span class="team-cell"><span class="team-flag">${getFlag(name)}</span> ${name}</span></td>
+              <td>${ptsText}</td>
+            </tr>
+          `;
+        });
+        honorRollBody.innerHTML = honorHTML;
+      } else {
+        honorRollBody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--text-muted);">Sin datos disponibles de posiciones.</td></tr>`;
+      }
+      
+      // Teams List
+      const teamsListContainer = document.getElementById('teamsClassifiedList');
+      if (teamList.size > 0) {
+        teamsListContainer.innerHTML = Array.from(teamList).sort().map(team => `
+          <a href="planteles_argentina.html?team=${encodeURIComponent(team)}" class="stat-card" style="padding:0.75rem 1rem; gap:0.5rem; justify-content:center;">
+            <span style="font-size:1.5rem;">${getFlag(team)}</span>
+            <span style="font-size:0.85rem; font-weight:600; text-align:center;">${team}</span>
+          </a>
+        `).join('');
+      } else {
+        teamsListContainer.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color:var(--text-muted);">No se encontraron equipos cargados.</p>`;
+      }
+    }
+
+    // Init
+    setupYearSelector(renderPage);
+    renderPage(state.currentYear);
+
+    // Register Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('Service Worker registrado con éxito:', reg.scope))
+          .catch(err => console.error('Fallo al registrar el Service Worker:', err));
+      });
+    }
+  </script>
+</body>
+</html>

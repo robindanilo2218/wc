@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clasificatorias Premundialistas - Mundial stats</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌍</text></svg>">
+  <style>
+    /* Premium Tab Switcher Styles */
+    .tab-switcher {
+      display: flex;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-md);
+      padding: 0.35rem;
+      border: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+      max-width: 600px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .tab-btn.active {
+      background-color: var(--primary);
+      color: #000;
+      box-shadow: var(--shadow-sm);
+    }
+    .tab-btn:hover:not(.active) {
+      color: var(--text-main);
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+    /* Confederation Tab Selector */
+    .confed-selector {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+    .confed-btn {
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .confed-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background-color: rgba(255, 215, 0, 0.05);
+    }
+    .confed-btn:hover:not(.active) {
+      border-color: var(--text-dark);
+      color: var(--text-main);
+    }
+    /* Status Badge styling */
+    .status-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    .status-direct { background-color: rgba(0, 230, 118, 0.12); color: var(--primary); }
+    .status-host { background-color: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .status-playoff { background-color: rgba(255, 215, 0, 0.15); color: var(--accent); }
+    .status-eliminated { background-color: rgba(239, 68, 68, 0.12); color: #f87171; }
+  </style>
+</head>
+<body>
+
+  <div id="offlineBanner" class="offline-banner">
+    Estás navegando en Modo Offline. Los datos guardados localmente están activos.
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="logo-container">
+        <span class="logo-title">MundialStats</span>
+        <span class="logo-sub">Estadísticas & Biorritmos</span>
+      </div>
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+          <li class="active"><a href="eliminatorias.html"><span>🌍</span> Eliminatorias</a></li>
+          <li><a href="resultadosyestadistica.html"><span>📅</span> Partidos y Fixture</a></li>
+          <li><a href="posicionesfinalesotabla.html"><span>📊</span> Posiciones Finales</a></li>
+          <li><a href="fasefinalllavesresultadosygoles.html"><span>🌳</span> Fase Final</a></li>
+          <li><a href="goleadores.html"><span>⚽</span> Goleadores</a></li>
+          <li><a href="premios.html"><span>🏆</span> Premios</a></li>
+          <li><a href="planteles_argentina.html"><span>👥</span> Planteles y Biorritmos</a></li>
+        </ul>
+      </nav>
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dark); text-align: center;">
+        PWA Offline 100% | 2026
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="title-section">
+          <h1>Clasificatorias Premundialistas</h1>
+          <p>Resultados, clasificados por zona y repechajes de acceso a la Copa del Mundo</p>
+        </div>
+        
+        <!-- Year Selector -->
+        <div class="wc-selector-container">
+          <span class="wc-selector-label">Mundial:</span>
+          <select id="wcYearSelect" class="wc-select">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </header>
+
+      <!-- Premium Double Navigation Tab -->
+      <div class="tab-switcher" id="mainTabSwitcher" style="display: none;">
+        <button class="tab-btn active" onclick="switchMainTab('playoffs')">
+          <span>🏆</span> Repechajes de Infarto
+        </button>
+        <button class="tab-btn" onclick="switchMainTab('standings')">
+          <span>🌍</span> Clasificados por Zona
+        </button>
+      </div>
+
+      <!-- Dynamic Content Area -->
+      <div id="qualiContentContainer">
+        <!-- Will be dynamically populated by JS -->
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Central script engine load -->
+  <script src="js/app.js"></script>
+  <script>
+    let activeMainTab = 'playoffs'; // 'playoffs' or 'standings'
+    let activeConfedTab = 'CONMEBOL'; // 'CONMEBOL', 'UEFA', 'CONCACAF', 'CAF', 'AFC', 'OFC'
+    let currentQualiData = null;
+
+    // Static Pre-World Cup Standings data for 2026 World Cup
+    const confedData2026 = {
+      CONMEBOL: {
+        title: "CONMEBOL (Sudamérica - 6 boletos directos + 1 repechaje)",
+        desc: "Las eliminatorias sudamericanas son un grupo único todos contra todos de 10 selecciones. Los 6 primeros avanzaron directo, y el 7° (Bolivia) avanzó al Repechaje Intercontinental.",
+        teams: [
+          { name: "Argentina", pos: 1, elo: 95, w: 12, d: 4, l: 2, pts: 40, status: "host", group: "J" }, // Status host represents direct/reigning champion status for display
+          { name: "Uruguay", pos: 2, elo: 87, w: 10, d: 5, l: 3, pts: 35, status: "direct", group: "H" },
+          { name: "Colombia", pos: 3, elo: 86, w: 9, d: 6, l: 3, pts: 33, status: "direct", group: "K" },
+          { name: "Brazil", pos: 4, elo: 93, w: 9, d: 5, l: 4, pts: 32, status: "direct", group: "C" },
+          { name: "Ecuador", pos: 5, elo: 82, w: 8, d: 5, l: 5, pts: 29, status: "direct", group: "E" },
+          { name: "Paraguay", pos: 6, elo: 78, w: 7, d: 4, l: 7, pts: 25, status: "direct", group: "D" },
+          { name: "Bolivia", pos: 7, elo: 78, w: 5, d: 2, l: 11, pts: 17, status: "eliminated", group: "Eliminado (Repechaje)" }
+        ]
+      },
+      UEFA: {
+        title: "UEFA (Europa - 16 boletos directos/repechaje)",
+        desc: "Dividido en 12 grupos de clasificación. Los 12 ganadores de grupo avanzaron directamente. Los 12 segundos y los 4 mejores clasificados de la Nations League jugaron los Repechajes UEFA en 4 rutas eliminatorias.",
+        teams: [
+          { name: "France", pos: 1, elo: 94, w: 7, d: 1, l: 0, pts: 22, status: "direct", group: "I" },
+          { name: "England", pos: 1, elo: 92, w: 7, d: 1, l: 0, pts: 22, status: "direct", group: "L" },
+          { name: "Spain", pos: 1, elo: 92, w: 6, d: 2, l: 0, pts: 20, status: "direct", group: "H" },
+          { name: "Portugal", pos: 1, elo: 91, w: 6, d: 2, l: 0, pts: 20, status: "direct", group: "K" },
+          { name: "Germany", pos: 1, elo: 90, w: 6, d: 1, l: 1, pts: 19, status: "direct", group: "E" },
+          { name: "Netherlands", pos: 1, elo: 89, w: 5, d: 3, l: 0, pts: 18, status: "direct", group: "F" },
+          { name: "Belgium", pos: 1, elo: 87, w: 5, d: 2, l: 1, pts: 17, status: "direct", group: "G" },
+          { name: "Croatia", pos: 1, elo: 87, w: 5, d: 2, l: 1, pts: 17, status: "direct", group: "L" },
+          { name: "Switzerland", pos: 1, elo: 81, w: 5, d: 1, l: 2, pts: 16, status: "direct", group: "B" },
+          { name: "Sweden", pos: 1, elo: 81, w: 4, d: 3, l: 1, pts: 15, status: "direct", group: "F" },
+          { name: "Norway", pos: 1, elo: 79, w: 4, d: 2, l: 2, pts: 14, status: "direct", group: "I" },
+          { name: "Austria", pos: 1, elo: 80, w: 4, d: 2, l: 2, pts: 14, status: "direct", group: "J" },
+          { name: "Czech Republic", pos: "Ruta D", elo: 79, w: 2, d: 0, l: 0, pts: 6, status: "playoff", group: "A" },
+          { name: "Bosnia & Herzegovina", pos: "Ruta A", elo: 76, w: 2, d: 0, l: 0, pts: 6, status: "playoff", group: "B" },
+          { name: "Turkey", pos: "Ruta C", elo: 80, w: 2, d: 0, l: 0, pts: 6, status: "playoff", group: "D" },
+          { name: "Scotland", pos: 1, elo: 74, w: 4, d: 1, l: 3, pts: 13, status: "direct", group: "C" },
+          { name: "Italy", pos: "Ruta A", elo: 95, w: 1, d: 0, l: 1, pts: 3, status: "eliminated", group: "Eliminado (Repechaje)" },
+          { name: "Poland", pos: "Ruta B", elo: 80, w: 1, d: 0, l: 1, pts: 3, status: "eliminated", group: "Eliminado (Repechaje)" },
+          { name: "Kosovo", pos: "Ruta C", elo: 70, w: 1, d: 0, l: 1, pts: 3, status: "eliminated", group: "Eliminado (Repechaje)" }
+        ]
+      },
+      CONCACAF: {
+        title: "CONCACAF (Norte, Centroamérica y Caribe - 3 anfitriones + 3 directos + 1 repechaje)",
+        desc: "Como anfitriones, México, Estados Unidos y Canadá obtuvieron boletos automáticos. La Fase Final consistió en un grupo final de 6 selecciones, de donde 3 avanzaron directo y el 4° (Jamaica) al Repechaje.",
+        teams: [
+          { name: "USA", pos: "Host", elo: 84, w: 0, d: 0, l: 0, pts: 0, status: "host", group: "D" },
+          { name: "Mexico", pos: "Host", elo: 81, w: 0, d: 0, l: 0, pts: 0, status: "host", group: "A" },
+          { name: "Canada", pos: "Host", elo: 77, w: 0, d: 0, l: 0, pts: 0, status: "host", group: "B" },
+          { name: "Panama", pos: 1, elo: 74, w: 7, d: 1, l: 2, pts: 22, status: "direct", group: "L" },
+          { name: "Haiti", pos: 2, elo: 64, w: 5, d: 2, l: 3, pts: 17, status: "direct", group: "C" },
+          { name: "Curaçao", pos: 3, elo: 64, w: 4, d: 3, l: 3, pts: 15, status: "direct", group: "E" },
+          { name: "Jamaica", pos: 4, elo: 70, w: 3, d: 2, l: 5, pts: 11, status: "eliminated", group: "Eliminado (Repechaje)" }
+        ]
+      },
+      CAF: {
+        title: "CAF (África - 9 boletos directos + 1 repechaje)",
+        desc: "9 grupos de clasificación de 6 equipos. Los 9 campeones avanzaron directamente al Mundial. El mejor segundo clasificado (R.D. del Congo) avanzó al Repechaje Intercontinental para ganar el boleto histórico.",
+        teams: [
+          { name: "Morocco", pos: 1, elo: 86, w: 8, d: 2, l: 0, pts: 26, status: "direct", group: "C" },
+          { name: "Ivory Coast", pos: 1, elo: 80, w: 7, d: 3, l: 0, pts: 24, status: "direct", group: "E" },
+          { name: "Senegal", pos: 1, elo: 82, w: 7, d: 2, l: 1, pts: 23, status: "direct", group: "I" },
+          { name: "Egypt", pos: 1, elo: 78, w: 7, d: 1, l: 2, pts: 22, status: "direct", group: "G" },
+          { name: "Algeria", pos: 1, elo: 78, w: 6, d: 3, l: 1, pts: 21, status: "direct", group: "J" },
+          { name: "Cape Verde", pos: 1, elo: 75, w: 6, d: 2, l: 2, pts: 20, status: "direct", group: "H" },
+          { name: "Ghana", pos: 1, elo: 76, w: 5, d: 4, l: 1, pts: 19, status: "direct", group: "L" },
+          { name: "South Africa", pos: 1, elo: 74, w: 5, d: 3, l: 2, pts: 18, status: "direct", group: "A" },
+          { name: "Tunisia", pos: 1, elo: 78, w: 5, d: 3, l: 2, pts: 18, status: "direct", group: "F" },
+          { name: "DR Congo", pos: 2, elo: 73, w: 6, d: 2, l: 2, pts: 20, status: "playoff", group: "K" }
+        ]
+      },
+      AFC: {
+        title: "AFC (Asia - 8 boletos directos + 1 repechaje)",
+        desc: "La Tercera Ronda consistió en 3 grupos de 6 selecciones. Los 2 primeros de cada grupo avanzaron directo. Los terceros y cuartos jugaron la Cuarta Ronda, clasificando dos más directamente y enviando al Repechaje a Irak.",
+        teams: [
+          { name: "Japan", pos: 1, elo: 82, w: 8, d: 1, l: 1, pts: 25, status: "direct", group: "F" },
+          { name: "South Korea", pos: 1, elo: 80, w: 7, d: 2, l: 1, pts: 23, status: "direct", group: "A" },
+          { name: "Australia", pos: 1, elo: 78, w: 7, d: 1, l: 2, pts: 22, status: "direct", group: "D" },
+          { name: "Iran", pos: 2, elo: 74, w: 6, d: 3, l: 1, pts: 21, status: "direct", group: "G" },
+          { name: "Saudi Arabia", pos: 2, elo: 77, w: 6, d: 2, l: 2, pts: 20, status: "direct", group: "H" },
+          { name: "Uzbekistan", pos: 2, elo: 75, w: 5, d: 4, l: 1, pts: 19, status: "direct", group: "K" },
+          { name: "Qatar", pos: 3, elo: 71, w: 4, d: 3, l: 3, pts: 15, status: "direct", group: "B" },
+          { name: "Jordan", pos: 4, elo: 72, w: 4, d: 2, l: 4, pts: 14, status: "direct", group: "J" },
+          { name: "Iraq", pos: 5, elo: 72, w: 3, d: 4, l: 3, pts: 13, status: "playoff", group: "I" }
+        ]
+      },
+      OFC: {
+        title: "OFC (Oceanía - 1 boleto directo + 1 repechaje)",
+        desc: "Por primera vez en la historia, Oceanía cuenta con un cupo directo garantizado. El ganador de la ronda final (Nueva Zelanda) clasificó directo y el subcampeón (Nueva Caledonia) avanzó al Repechaje.",
+        teams: [
+          { name: "New Zealand", pos: 1, elo: 63, w: 5, d: 0, l: 0, pts: 15, status: "direct", group: "G" },
+          { name: "New Caledonia", pos: 2, elo: 60, w: 3, d: 1, l: 1, pts: 10, status: "eliminated", group: "Eliminado (Repechaje)" }
+        ]
+      }
+    };
+
+    function switchMainTab(tab) {
+      activeMainTab = tab;
+      document.querySelectorAll('#mainTabSwitcher .tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', (idx === 0 && tab === 'playoffs') || (idx === 1 && tab === 'standings'));
+      });
+      renderQualiLayout();
+    }
+
+    function switchConfedTab(confed) {
+      activeConfedTab = confed;
+      document.querySelectorAll('.confed-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-confed') === confed);
+      });
+      renderConfedStandings();
+    }
+
+    async function renderPage(year) {
+      const container = document.getElementById('qualiContentContainer');
+      const switcher = document.getElementById('mainTabSwitcher');
+      
+      container.innerHTML = '<div style="text-align:center; padding: 3rem; color:var(--text-muted);">⌛ Cargando datos de clasificatorias...</div>';
+      
+      // Load the qualifiers data
+      const data = await loadQualiPlayoffsData(year);
+      currentQualiData = data;
+      
+      if (!data || !data.matches || data.matches.length === 0) {
+        // Show premium informational fallback for other years
+        switcher.style.display = 'none';
+        container.innerHTML = `
+          <div class="glass-card" style="text-align: center; padding: 4rem 2rem; max-width: 700px; margin: 2rem auto;">
+            <div style="font-size: 4rem; margin-bottom: 1.5rem;">🌍⚽</div>
+            <h2 style="color: var(--accent); margin-bottom: 1rem; font-family: var(--font-title);">Repechajes y Clasificación Directa</h2>
+            <p style="color: var(--text-main); font-size: 1.1rem; line-height: 1.7; margin-bottom: 1.5rem;">
+              Para el Mundial <strong>${year}</strong>, las plazas se asignaron mediante los procesos clasificatorios tradicionales de cada confederación (CONMEBOL, UEFA, CAF, AFC, CONCACAF, OFC).
+            </p>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+              Los datos interactivos de los cruces de repechaje final y las tablas de clasificación de las eliminatorias previas están cargados para el formato del <strong>Mundial 2026</strong>. Para ver cómo terminaron las selecciones en el torneo ${year}, puedes consultar la pestaña de <a href="posicionesfinalesotabla.html" style="color:var(--primary); font-weight:600;">Posiciones Finales</a> o el <a href="index.html" style="color:var(--primary); font-weight:600;">Cuadro de Honor</a>.
+            </p>
+          </div>
+        `;
+        return;
+      }
+      
+      // If we have data, enable the main tab switcher
+      switcher.style.display = 'flex';
+      renderQualiLayout();
+    }
+
+    function renderQualiLayout() {
+      const container = document.getElementById('qualiContentContainer');
+      
+      if (activeMainTab === 'playoffs') {
+        renderPlayoffsContent();
+      } else {
+        renderStandingsContent();
+      }
+    }
+
+    function renderPlayoffsContent() {
+      const container = document.getElementById('qualiContentContainer');
+      const uefaMatches = currentQualiData.matches.filter(m => m.round.includes("UEFA"));
+      const interMatches = currentQualiData.matches.filter(m => m.round.includes("Inter-confederation"));
+      
+      let html = '';
+      
+      // Explanation/Context Banner about DR Congo and others
+      html += `
+        <div class="glass-card" style="margin-bottom: 2rem; border-left: 4px solid var(--accent); background: linear-gradient(135deg, rgba(20, 28, 47, 0.8) 0%, rgba(11, 15, 25, 0.8) 100%);">
+          <h2 style="color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.3rem;">
+            <span>ℹ️</span> Repechajes de Acceso Final al Mundial (2026)
+          </h2>
+          <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6;">
+            El Mundial de 2026 cuenta con un formato expandido a 48 selecciones. Los últimos boletos se definieron en los emocionantes <strong>Repechajes de la UEFA</strong> y el histórico <strong>Torneo de Repechaje Intercontinental de la FIFA</strong> disputado en Monterrey y Guadalajara (México) en Marzo de 2026.
+          </p>
+          <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color); display: flex; flex-wrap: wrap; gap: 1.5rem; font-size: 0.85rem; color: var(--text-muted);">
+            <div>💡 <strong style="color: var(--primary);">Ruta de la R.D. del Congo:</strong> Venció a Jamaica 1-0 en la Final del Repechaje Intercontinental (Ruta 1) para clasificar por primera vez desde 1974.</div>
+            <div>💡 <strong style="color: var(--primary);">La Sorpresa de Irak:</strong> Venció a Bolivia 2-1 en la Final de la Ruta 2, reclamando su lugar en la Copa del Mundo.</div>
+          </div>
+        </div>
+      `;
+      
+      // Render UEFA Play-offs
+      if (uefaMatches.length > 0) {
+        html += `
+          <h2 style="margin: 2.5rem 0 1rem 0; color: var(--text-main); font-family: var(--font-title); display: flex; align-items: center; gap: 0.5rem; font-size: 1.6rem;">
+            <span>🇪🇺</span> Repechaje Final UEFA (Boletos Restantes)
+          </h2>
+          <div class="matches-grid" style="margin-bottom: 3rem;">
+        `;
+        
+        // Group UEFA matches by Paths
+        const paths = ['Path A', 'Path B', 'Path C', 'Path D'];
+        paths.forEach(pathName => {
+          const pathMatches = uefaMatches.filter(m => m.round.includes(pathName));
+          if (pathMatches.length > 0) {
+            pathMatches.forEach(match => {
+              html += renderQualiMatchCard(match, pathName);
+            });
+          }
+        });
+        
+        html += `</div>`;
+      }
+      
+      // Render Inter-confederation Play-offs
+      if (interMatches.length > 0) {
+        html += `
+          <h2 style="margin: 2.5rem 0 1rem 0; color: var(--text-main); font-family: var(--font-title); display: flex; align-items: center; gap: 0.5rem; font-size: 1.6rem;">
+            <span>🌎</span> Repechaje Intercontinental FIFA (Monterrey & Guadalajara)
+          </h2>
+          <div class="matches-grid">
+        `;
+        
+        const pathways = ['Pathway 1', 'Pathway 2'];
+        pathways.forEach(pathwayName => {
+          const pathMatches = interMatches.filter(m => m.round.includes(pathwayName));
+          if (pathMatches.length > 0) {
+            pathMatches.forEach(match => {
+              html += renderQualiMatchCard(match, pathwayName);
+            });
+          }
+        });
+        
+        html += `</div>`;
+      }
+      
+      container.innerHTML = html;
+    }
+
+    function renderStandingsContent() {
+      const container = document.getElementById('qualiContentContainer');
+      
+      let html = `
+        <div class="glass-card" style="margin-bottom: 2rem;">
+          <h2 style="color: var(--accent); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; font-size: 1.3rem;">
+            <span>🌍</span> Tabla Premundialista de Clasificados por Confederación (2026)
+          </h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+            Explora las clasificaciones y estadísticas del camino clasificatorio de los 48 equipos que obtuvieron su boleto al Mundial 2026 de Canadá, México y Estados Unidos, clasificados por sus respectivas confederaciones y zonas regionales de fútbol.
+          </p>
+        </div>
+
+        <!-- Escalada / Roadmap section -->
+        <div class="glass-card" style="margin-bottom: 2rem; background: linear-gradient(135deg, rgba(20, 28, 47, 0.4) 0%, rgba(11, 15, 25, 0.4) 100%); border-left: 4px solid var(--primary);">
+          <h3 style="color: var(--primary); margin-bottom: 1.25rem; font-family: var(--font-title); font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem;">
+            <span>📈</span> ¿Cómo escalaron las selecciones hasta la Copa del Mundo?
+          </h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); border-top: 3px solid var(--text-dark);">
+              <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Paso 1</div>
+              <h4 style="color: var(--text-main); margin-bottom: 0.5rem; font-size: 0.95rem;">🌍 Eliminatorias Globales</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                <strong>208 selecciones</strong> de 6 confederaciones disputaron extensos torneos regionales todos contra todos o fases de grupos durante 3 años antes del Mundial.
+              </p>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); border-top: 3px solid var(--primary);">
+              <div style="font-size: 0.75rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Paso 2</div>
+              <h4 style="color: var(--text-main); margin-bottom: 0.5rem; font-size: 0.95rem;">🎟️ Clasificados Directos</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                Los gigantes y ganadores de cada grupo regional (<strong>40 selecciones</strong> directas + 3 anfitriones) aseguraron matemáticamente su boleto directo sin repesca.
+              </p>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); border-top: 3px solid var(--accent);">
+              <div style="font-size: 0.75rem; color: var(--accent); font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Paso 3</div>
+              <h4 style="color: var(--text-main); margin-bottom: 0.5rem; font-size: 0.95rem;">🇪🇺 Repechajes de Zona</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                Equipos en puestos secundarios batallaron internamente. En la UEFA, 16 selecciones jugaron llaves de eliminación directa para reclamar los últimos 4 boletos europeos.
+              </p>
+            </div>
+            
+            <div style="background: rgba(0,0,0,0.2); padding: 1rem; border-radius: var(--radius-sm); border-top: 3px solid #ef4444;">
+              <div style="font-size: 0.75rem; color: #ef4444; font-weight: 700; text-transform: uppercase; margin-bottom: 0.25rem;">Paso 4</div>
+              <h4 style="color: var(--text-main); margin-bottom: 0.5rem; font-size: 0.95rem;">💥 Repesca Intercontinental</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.4;">
+                Los 6 mejores no clasificados de todo el planeta se concentraron en México en un torneo de muerte súbita. <strong>R.D. Congo</strong> e <strong>Irak</strong> escalaron ganando las finales para quedarse con los 2 cupos finales.
+              </p>
+            </div>
+            
+          </div>
+        </div>
+
+        
+        <!-- Confederation Sub-Tab Selector -->
+        <div class="confed-selector">
+          <button class="confed-btn ${activeConfedTab === 'CONMEBOL' ? 'active' : ''}" data-confed="CONMEBOL" onclick="switchConfedTab('CONMEBOL')">🌎 CONMEBOL (Sudamérica)</button>
+          <button class="confed-btn ${activeConfedTab === 'UEFA' ? 'active' : ''}" data-confed="UEFA" onclick="switchConfedTab('UEFA')">🇪🇺 UEFA (Europa)</button>
+          <button class="confed-btn ${activeConfedTab === 'CONCACAF' ? 'active' : ''}" data-confed="CONCACAF" onclick="switchConfedTab('CONCACAF')">🍁 CONCACAF (Norte/Centro)</button>
+          <button class="confed-btn ${activeConfedTab === 'CAF' ? 'active' : ''}" data-confed="CAF" onclick="switchConfedTab('CAF')">🦁 CAF (África)</button>
+          <button class="confed-btn ${activeConfedTab === 'AFC' ? 'active' : ''}" data-confed="AFC" onclick="switchConfedTab('AFC')">🐉 AFC (Asia)</button>
+          <button class="confed-btn ${activeConfedTab === 'OFC' ? 'active' : ''}" data-confed="OFC" onclick="switchConfedTab('OFC')">🥝 OFC (Oceanía)</button>
+        </div>
+        
+        <!-- Confederation Standings Container -->
+        <div id="confedStandingsContainer" class="glass-card">
+          <!-- Will be rendered dynamically -->
+        </div>
+      `;
+      
+      container.innerHTML = html;
+      renderConfedStandings();
+    }
+
+    function renderConfedStandings() {
+      const subContainer = document.getElementById('confedStandingsContainer');
+      const data = confedData2026[activeConfedTab];
+      
+      if (!data) {
+        subContainer.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Error al cargar los datos.</div>';
+        return;
+      }
+      
+      let html = `
+        <div style="margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color);">
+          <h2 style="color: var(--accent); font-family: var(--font-title); font-size: 1.4rem; margin-bottom: 0.25rem;">${data.title}</h2>
+          <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5;">${data.desc}</p>
+        </div>
+        
+        <div class="table-container">
+          <table class="premium-table">
+            <thead>
+              <tr>
+                <th style="width: 80px; text-align: center;">Posición</th>
+                <th>Equipo</th>
+                <th style="text-align: center; width: 100px;">Fuerza (Elo)</th>
+                <th style="text-align: center; width: 80px;">PG</th>
+                <th style="text-align: center; width: 80px;">PE</th>
+                <th style="text-align: center; width: 80px;">PP</th>
+                <th style="text-align: center; width: 100px;">Puntos</th>
+                <th style="width: 180px;">Estado de Acceso</th>
+                <th style="text-align: center; width: 120px;">Grupo Mundial</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
+      
+      data.teams.forEach(team => {
+        let statusBadge = '';
+        if (team.status === 'host') statusBadge = '<span class="status-badge status-host">Anfitrión / Campeón</span>';
+        else if (team.status === 'direct') statusBadge = '<span class="status-badge status-direct">Clasificado Directo</span>';
+        else if (team.status === 'playoff') statusBadge = '<span class="status-badge status-playoff">Cupo por Repechaje</span>';
+        else if (team.status === 'eliminated') statusBadge = '<span class="status-badge status-eliminated">Eliminado Repesca</span>';
+        
+        // Flag icon resolver
+        const flag = getFlag(team.name);
+        
+        html += `
+          <tr style="${team.status === 'eliminated' ? 'opacity: 0.65; background-color: rgba(239, 68, 68, 0.02);' : ''}">
+            <td style="text-align: center; font-weight: 700; font-family: var(--font-title); font-size: 1.1rem; color: ${team.status === 'eliminated' ? 'var(--text-dark)' : 'var(--accent)'};">${team.pos}</td>
+            <td class="team-cell" style="font-weight: 700;">
+              <span class="team-flag">${flag}</span>
+              <span>${team.name}</span>
+            </td>
+            <td style="text-align: center; font-weight: 600; font-family: var(--font-title);">${team.elo}</td>
+            <td style="text-align: center;">${team.w}</td>
+            <td style="text-align: center;">${team.d}</td>
+            <td style="text-align: center;">${team.l}</td>
+            <td style="text-align: center; font-weight: 700; font-family: var(--font-title); font-size: 1.1rem; color: var(--text-main);">${team.pts}</td>
+            <td>${statusBadge}</td>
+            <td style="text-align: center; font-weight: 700; color: ${team.status === 'eliminated' ? 'var(--text-dark)' : 'var(--primary)'}; font-family: var(--font-title);">${team.status === 'eliminated' ? '--' : `Grupo ${team.group}`}</td>
+          </tr>
+        `;
+      });
+      
+      html += `
+            </tbody>
+          </table>
+        </div>
+      `;
+      
+      subContainer.innerHTML = html;
+    }
+    
+    function renderQualiMatchCard(match, groupName) {
+      const t1 = match.team1;
+      const t2 = match.team2;
+      const f1 = getFlag(t1);
+      const f2 = getFlag(t2);
+      
+      // Determine winner
+      let s1 = 0, s2 = 0;
+      let scoreStr = '';
+      let isEt = false;
+      let isPen = false;
+      let p1 = 0, p2 = 0;
+      
+      if (match.score) {
+        if (match.score.ft) {
+          s1 = match.score.ft[0];
+          s2 = match.score.ft[1];
+          scoreStr = `${s1} - ${s2}`;
+        }
+        if (match.score.et) {
+          s1 = match.score.et[0];
+          s2 = match.score.et[1];
+          scoreStr = `${s1} - ${s2} (t.s.)`;
+          isEt = true;
+        }
+        if (match.score.p) {
+          p1 = match.score.p[0];
+          p2 = match.score.p[1];
+          scoreStr += ` [Pen: ${p1} - ${p2}]`;
+          isPen = true;
+        }
+      }
+      
+      const t1Won = (s1 > s2) || (isPen && p1 > p2);
+      const t2Won = (s2 > s1) || (isPen && p2 > p1);
+      
+      // Goals lists html
+      let goalsHtml = '';
+      if (match.goals1 && match.goals1.length > 0 || match.goals2 && match.goals2.length > 0) {
+        goalsHtml = `<div style="font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 0.5rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">`;
+        if (match.goals1 && match.goals1.length > 0) {
+          goalsHtml += `<div>⚽ <strong>${t1}:</strong> ${match.goals1.map(g => `${g.name} (${g.minute}')`).join(', ')}</div>`;
+        }
+        if (match.goals2 && match.goals2.length > 0) {
+          goalsHtml += `<div>⚽ <strong>${t2}:</strong> ${match.goals2.map(g => `${g.name} (${g.minute}')`).join(', ')}</div>`;
+        }
+        goalsHtml += `</div>`;
+      }
+      
+      const isFinal = match.round.includes("Final");
+      const roundLabel = isFinal ? "🏆 FINAL DE RUTA" : "⚔️ SEMIFINAL DE RUTA";
+      const badgeColor = isFinal ? "background-color: rgba(255, 215, 0, 0.15); color: var(--accent);" : "background-color: rgba(0, 230, 118, 0.1); color: var(--primary);";
+      
+      return `
+        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; gap: 1rem; border: 1px solid ${isFinal ? 'rgba(255, 215, 0, 0.25)' : 'var(--border-color)'}; border-top: 3px solid ${isFinal ? 'var(--accent)' : 'var(--primary)'};">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+              <span style="font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.5rem; border-radius: 4px; ${badgeColor}">${roundLabel} (${groupName})</span>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">${match.date}</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 0.75rem; margin: 1rem 0;">
+              <!-- Team 1 -->
+              <div style="display: flex; justify-content: space-between; align-items: center; ${t1Won ? 'color: var(--primary); font-weight: 700;' : ''}">
+                <span class="team-cell">
+                  <span class="team-flag">${f1}</span>
+                  <span>${t1}</span>
+                </span>
+                ${t1Won ? '<span style="font-size:0.75rem; background: rgba(0, 230, 118, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px;">✅ Clasificado</span>' : ''}
+              </div>
+              
+              <!-- Team 2 -->
+              <div style="display: flex; justify-content: space-between; align-items: center; ${t2Won ? 'color: var(--primary); font-weight: 700;' : ''}">
+                <span class="team-cell">
+                  <span class="team-flag">${f2}</span>
+                  <span>${t2}</span>
+                </span>
+                ${t2Won ? '<span style="font-size:0.75rem; background: rgba(0, 230, 118, 0.15); padding: 0.1rem 0.4rem; border-radius: 4px;">✅ Clasificado</span>' : ''}
+              </div>
+            </div>
+          </div>
+          
+          <div>
+            <div style="background: rgba(0, 0, 0, 0.2); padding: 0.5rem; border-radius: 6px; text-align: center; font-weight: 700; font-size: 1.1rem; color: var(--accent); font-family: var(--font-title);">
+              ${scoreStr}
+            </div>
+            
+            ${goalsHtml}
+            
+            <div style="font-size: 0.7rem; color: var(--text-dark); margin-top: 0.75rem; text-align: right; font-style: italic;">
+              🏟️ Sede: ${match.ground || 'Por definir'}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Init PWA engine hooks
+    setupYearSelector(renderPage);
+    renderPage(state.currentYear);
+  </script>
+</body>
+</html>

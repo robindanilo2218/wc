@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Llaves y Fase Final - Mundial de Fútbol</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+</head>
+<body>
+
+  <div id="offlineBanner" class="offline-banner">
+    Estás navegando en Modo Offline. Los datos guardados localmente están activos.
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="logo-container">
+        <span class="logo-title">MundialStats</span>
+        <span class="logo-sub">Estadísticas & Biorritmos</span>
+      </div>
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+          <li><a href="eliminatorias.html"><span>🌍</span> Eliminatorias</a></li>
+          <li><a href="resultadosyestadistica.html"><span>📅</span> Partidos y Fixture</a></li>
+          <li><a href="posicionesfinalesotabla.html"><span>📊</span> Posiciones Finales</a></li>
+          <li class="active"><a href="fasefinalllavesresultadosygoles.html"><span>🌳</span> Fase Final</a></li>
+          <li><a href="goleadores.html"><span>⚽</span> Goleadores</a></li>
+          <li><a href="premios.html"><span>🏆</span> Premios</a></li>
+          <li><a href="planteles_argentina.html"><span>👥</span> Planteles y Biorritmos</a></li>
+        </ul>
+      </nav>
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dark); text-align: center;">
+        PWA Offline 100% | 2026
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="title-section">
+          <h1>Llaves y Fase Final</h1>
+          <p>Cruces eliminatorios desde Dieciseisavos/Octavos hasta la Gran Final</p>
+        </div>
+        
+        <!-- Year Selector -->
+        <div class="wc-selector-container">
+          <span class="wc-selector-label">Mundial:</span>
+          <select id="wcYearSelect" class="wc-select">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </header>
+
+      <section class="glass-card">
+        <div class="glass-card-header">
+          <h3 class="glass-card-title"><span>🌳</span> Árbol de Eliminatorias</h3>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">
+            * Si ingresa marcadores en la sección "Partidos", las llaves se actualizarán automáticamente.
+          </span>
+        </div>
+        
+        <div class="bracket-wrapper">
+          <div id="bracketContainer" class="bracket-container">
+            <!-- Rendered Dynamically -->
+            <p style="text-align:center; width:100%; color:var(--text-muted); padding:3rem 0;">Cargando llaves...</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let currentMatches = [];
+
+    async function renderPage(year) {
+      const data = await loadWorldCupData(year);
+      if (!data) return;
+
+      currentMatches = data.matches || [];
+      buildPlayoffTree();
+    }
+
+    // Advanced dynamic bracket builder
+    function buildPlayoffTree() {
+      const container = document.getElementById('bracketContainer');
+      const is2026 = state.currentYear === '2026';
+      
+      // Resolve playoff placeholders if 2026
+      let placeholders = {};
+      if (is2026) {
+        placeholders = resolvePlayoffTeamsFor2026(currentMatches);
+      }
+      
+      // Filter matches by round
+      const r32Matches = currentMatches.filter(m => m.round === "Round of 32");
+      const r16Matches = currentMatches.filter(m => m.round === "Round of 16" || m.round === "Eighth-finals");
+      const qfMatches = currentMatches.filter(m => m.round === "Quarter-final" || m.round === "Quarter-finals");
+      const sfMatches = currentMatches.filter(m => m.round === "Semi-final" || m.round === "Semi-finals");
+      const finalMatches = currentMatches.filter(m => m.round === "Final");
+      const thirdPlaceMatches = currentMatches.filter(m => m.round === "Match for third place" || m.round === "Playoff for 3rd Place");
+
+      // Helper to display team name or its advanced placeholder recursively
+      function getDisplayName(rawName) {
+        return resolvePlayoffTeamName(rawName, currentMatches);
+      }
+
+      function renderMatchCard(match) {
+        const t1 = getDisplayName(match.team1);
+        const t2 = getDisplayName(match.team2);
+        
+        let s1 = "-", s2 = "-";
+        let p1 = "", p2 = "";
+        let winnerClass1 = "", winnerClass2 = "";
+        
+        if (match.score && match.score.ft) {
+          s1 = match.score.ft[0];
+          s2 = match.score.ft[1];
+          
+          if (match.score.p) {
+            p1 = `<span style="font-size:0.75rem; color:var(--accent); margin-left:0.25rem; font-weight:600;">(${match.score.p[0]})</span>`;
+            p2 = `<span style="font-size:0.75rem; color:var(--accent); margin-left:0.25rem; font-weight:600;">(${match.score.p[1]})</span>`;
+          }
+          
+          if (s1 > s2) winnerClass1 = "winner";
+          else if (s2 > s1) winnerClass2 = "winner";
+          else if (match.score.p) {
+            if (match.score.p[0] > match.score.p[1]) winnerClass1 = "winner";
+            else winnerClass2 = "winner";
+          }
+        }
+        
+        return `
+          <div class="bracket-match">
+            <div class="bracket-team ${winnerClass1}">
+              <span class="bracket-team-name"><span class="team-flag">${getFlag(t1)}</span> ${t1}</span>
+              <span class="bracket-score" style="display:flex; align-items:center;">${s1}${p1}</span>
+            </div>
+            <div class="bracket-team ${winnerClass2}">
+              <span class="bracket-team-name"><span class="team-flag">${getFlag(t2)}</span> ${t2}</span>
+              <span class="bracket-score" style="display:flex; align-items:center;">${s2}${p2}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      let html = "";
+
+      // Col 1: Dieciseisavos (Round of 32) - only for 2026 (48 teams)
+      if (is2026 && r32Matches.length > 0) {
+        html += `
+          <div class="bracket-column">
+            <div class="bracket-round-title">Dieciseisavos (1/16)</div>
+            ${r32Matches.map(renderMatchCard).join('<div style="height:1rem;"></div>')}
+          </div>
+        `;
+      }
+
+      // Col 2: Octavos (Round of 16) - for 1986-2022, 2026
+      if (r16Matches.length > 0) {
+        html += `
+          <div class="bracket-column">
+            <div class="bracket-round-title">Octavos de Final</div>
+            ${r16Matches.map(renderMatchCard).join('<div style="height:2rem;"></div>')}
+          </div>
+        `;
+      }
+
+      // Col 3: Cuartos (Quarter-finals)
+      if (qfMatches.length > 0) {
+        html += `
+          <div class="bracket-column">
+            <div class="bracket-round-title">Cuartos de Final</div>
+            ${qfMatches.map(renderMatchCard).join('<div style="height:4rem;"></div>')}
+          </div>
+        `;
+      }
+
+      // Col 4: Semifinales (Semi-finals)
+      if (sfMatches.length > 0) {
+        html += `
+          <div class="bracket-column">
+            <div class="bracket-round-title">Semifinales</div>
+            ${sfMatches.map(renderMatchCard).join('<div style="height:8rem;"></div>')}
+          </div>
+        `;
+      }
+
+      // Col 5: Tercer Puesto & Final
+      if (finalMatches.length > 0 || thirdPlaceMatches.length > 0) {
+        let finalHTML = "";
+        if (thirdPlaceMatches.length > 0) {
+          finalHTML += `<div class="bracket-round-title">Tercer Puesto</div>`;
+          finalHTML += thirdPlaceMatches.map(renderMatchCard).join('');
+          finalHTML += `<div style="height:3rem;"></div>`;
+        }
+        if (finalMatches.length > 0) {
+          finalHTML += `<div class="bracket-round-title" style="color:var(--accent);">Gran Final</div>`;
+          finalHTML += finalMatches.map(renderMatchCard).join('');
+        }
+        
+        html += `
+          <div class="bracket-column" style="justify-content: center;">
+            ${finalHTML}
+          </div>
+        `;
+      }
+
+      if (html === "") {
+        container.innerHTML = `<p style="text-align:center; width:100%; color:var(--text-muted); padding:3rem 0;">Este mundial no tiene fase eliminatoria directa registrada en este formato (ej. formato de liguilla final 1950).</p>`;
+      } else {
+        container.innerHTML = html;
+      }
+    }
+
+    // Init
+    setupYearSelector(renderPage);
+    renderPage(state.currentYear);
+  </script>
+</body>
+</html>

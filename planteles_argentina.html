@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planteles y Biorritmos - Mundial de Fútbol</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+</head>
+<body>
+
+  <div id="offlineBanner" class="offline-banner">
+    Estás navegando en Modo Offline. Los datos guardados localmente están activos.
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="logo-container">
+        <span class="logo-title">MundialStats</span>
+        <span class="logo-sub">Estadísticas & Biorritmos</span>
+      </div>
+      <nav>
+        <ul class="sidebar-menu">
+          <li><a href="index.html"><span>🏠</span> Inicio</a></li>
+          <li><a href="eliminatorias.html"><span>🌍</span> Eliminatorias</a></li>
+          <li><a href="resultadosyestadistica.html"><span>📅</span> Partidos y Fixture</a></li>
+          <li><a href="posicionesfinalesotabla.html"><span>📊</span> Posiciones Finales</a></li>
+          <li><a href="fasefinalllavesresultadosygoles.html"><span>🌳</span> Fase Final</a></li>
+          <li><a href="goleadores.html"><span>⚽</span> Goleadores</a></li>
+          <li><a href="premios.html"><span>🏆</span> Premios</a></li>
+          <li class="active"><a href="planteles_argentina.html"><span>👥</span> Planteles y Biorritmos</a></li>
+        </ul>
+      </nav>
+      <div style="margin-top: auto; font-size: 0.75rem; color: var(--text-dark); text-align: center;">
+        PWA Offline 100% | 2026
+      </div>
+    </aside>
+
+    <!-- Main Wrapper -->
+    <main class="main-wrapper">
+      <header class="top-header">
+        <div class="title-section">
+          <h1>Planteles y Biorritmos</h1>
+          <p>Cálculo de biorritmos físicos, emocionales e intelectuales de los jugadores en fechas de partido</p>
+        </div>
+        
+        <!-- Year Selector -->
+        <div class="wc-selector-container">
+          <span class="wc-selector-label">Mundial:</span>
+          <select id="wcYearSelect" class="wc-select">
+            <!-- Dynamically populated -->
+          </select>
+        </div>
+      </header>
+
+      <!-- Selection & Parameter Controls -->
+      <section class="biorhythm-container">
+        <!-- Input parameters pane -->
+        <div class="selection-pane">
+          <h3 style="color: var(--accent); margin-bottom: 0.5rem; text-transform: uppercase; font-size:0.9rem;">Parámetros de Biorritmo</h3>
+          
+          <div class="form-group">
+            <label for="teamSelect">Selección Roster:</label>
+            <select id="teamSelect" class="form-control" onchange="renderRoster()">
+              <!-- Dynamically populated -->
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="targetDate">Fecha de Juego / Análisis:</label>
+            <input type="date" id="targetDate" class="form-control" value="2026-06-11" onchange="updateAnalysis()">
+          </div>
+
+          <div class="form-group">
+            <label>Filtrar Ciclo Biorritmo:</label>
+            <div class="option-group" style="flex-direction: column; gap:0.25rem;">
+              <button id="cycle_avg" class="option-btn active" onclick="setCycleFilter('avg')">🔄 Promedio Colectivo</button>
+              <button id="cycle_phys" class="option-btn" onclick="setCycleFilter('phys')">❤️ Físico (23 días)</button>
+              <button id="cycle_emot" class="option-btn" onclick="setCycleFilter('emot')">🧠 Emocional (28 días)</button>
+              <button id="cycle_intel" class="option-btn" onclick="setCycleFilter('intel')">💡 Intelectual (33 días)</button>
+            </div>
+          </div>
+          
+          <div style="border-top:1px solid var(--border-color); padding-top:1rem; margin-top:0.5rem;">
+            <p style="font-size:0.75rem; color:var(--text-muted); line-height: 1.5;">
+              <b>¿Qué es el Biorritmo?</b><br>
+              Son ciclos biológicos naturales que varían entre -100% y +100%. Miden el estado físico (resistencia), emocional (estabilidad) e intelectual (toma de decisiones).
+            </p>
+          </div>
+        </div>
+
+        <!-- Roster Visualizer with Biorhythm values -->
+        <div class="glass-card">
+          <div class="glass-card-header">
+            <h3 class="glass-card-title"><span id="rosterTitleFlag">🇦🇷</span> Roster de <span id="rosterTitleName">Argentina</span></h3>
+            <span id="playerCount" style="font-size: 0.9rem; color: var(--text-muted);">26 Jugadores</span>
+          </div>
+          
+          <div id="rosterContainer" class="player-list">
+            <!-- Dynamically populated player cards -->
+          </div>
+        </div>
+      </section>
+
+      <!-- Match Predictor Section -->
+      <section class="glass-card">
+        <div class="glass-card-header">
+          <h3 class="glass-card-title"><span>🔮</span> Comparador y Pronóstico de Partidos</h3>
+          <span style="font-size: 0.85rem; color: var(--text-muted);">Análisis predictivo de rendimiento biológico</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.5rem;" class="responsive-double-col">
+          <div class="form-group">
+            <label for="predictTeam1">Selección local (A):</label>
+            <select id="predictTeam1" class="form-control" onchange="runMatchPrediction()"></select>
+          </div>
+          <div class="form-group">
+            <label for="predictTeam2">Selección visitante (B):</label>
+            <select id="predictTeam2" class="form-control" onchange="runMatchPrediction()"></select>
+          </div>
+        </div>
+
+        <!-- Prediction Summary Card -->
+        <div id="forecastContainer" class="forecast-card">
+          <div class="forecast-title">Análisis de Biorritmo</div>
+          <div class="forecast-vs">
+            <div class="forecast-team-block">
+              <span id="foreFlag1" class="forecast-flag">🏳️</span>
+              <span id="foreName1" class="forecast-team-name">Selección A</span>
+              <span id="foreIndex1" class="forecast-index">--%</span>
+              <small style="color:var(--text-muted);">Rendimiento Medio</small>
+            </div>
+            
+            <div class="forecast-vs-circle">VS</div>
+            
+            <div class="forecast-team-block">
+              <span id="foreFlag2" class="forecast-flag">🏳️</span>
+              <span id="foreName2" class="forecast-team-name">Selección B</span>
+              <span id="foreIndex2" class="forecast-index">--%</span>
+              <small style="color:var(--text-muted);">Rendimiento Medio</small>
+            </div>
+          </div>
+          
+          <div id="foreVerdict" class="forecast-verdict">
+            Selecciona dos equipos para calcular el pronóstico biológico del partido.
+          </div>
+          
+          <div id="simulationActionBox" style="display:none; gap:1rem;">
+            <button class="btn btn-primary" onclick="applySimulatedScore()">⚽ Guardar Resultado Simulado en Fixture</button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+  <script>
+    let currentTeams = [];
+    let currentMatches = [];   // needed by applySimulatedScore
+    let cycleFilter = 'avg';   // 'avg', 'phys', 'emot', 'intel'
+    let predictedScore = null;
+
+    async function renderPage(year) {
+      const data = await loadWorldCupData(year);
+      if (!data) return;
+      currentMatches = data.matches || [];
+
+      // Extract unique teams from matches
+      const teamSet = new Set();
+      data.matches.forEach(m => {
+        if (m.team1 && !m.team1.match(/^[0-9]/) && !m.team1.startsWith("W")) teamSet.add(m.team1);
+        if (m.team2 && !m.team2.match(/^[0-9]/) && !m.team2.startsWith("W")) teamSet.add(m.team2);
+      });
+      
+      currentTeams = Array.from(teamSet).sort();
+
+      // Populate selects
+      const teamSelect = document.getElementById('teamSelect');
+      const pred1 = document.getElementById('predictTeam1');
+      const pred2 = document.getElementById('predictTeam2');
+      
+      const teamOptions = currentTeams.map(t => `<option value="${t}">${t}</option>`).join('');
+      teamSelect.innerHTML = teamOptions;
+      pred1.innerHTML = teamOptions;
+      pred2.innerHTML = teamOptions;
+      
+      // Handle URL Query Params
+      const urlParams = new URLSearchParams(window.location.search);
+      const preTeam1 = urlParams.get('team1');
+      const preTeam2 = urlParams.get('team2');
+      const preDate = urlParams.get('date');
+      const preTeam = urlParams.get('team');
+      
+      if (preDate) {
+        document.getElementById('targetDate').value = preDate;
+      } else {
+        // Set default date based on year
+        if (year === '2026') {
+          document.getElementById('targetDate').value = "2026-06-11";
+        } else {
+          // Pre-populate with first match date
+          if (data.matches.length > 0) {
+            document.getElementById('targetDate').value = data.matches[0].date;
+          }
+        }
+      }
+      
+      if (preTeam && currentTeams.includes(preTeam)) {
+        teamSelect.value = preTeam;
+      }
+      
+      if (preTeam1 && preTeam2 && currentTeams.includes(preTeam1) && currentTeams.includes(preTeam2)) {
+        pred1.value = preTeam1;
+        pred2.value = preTeam2;
+        teamSelect.value = preTeam1;
+      } else {
+        // Default select values
+        if (currentTeams.length >= 2) {
+          pred1.value = currentTeams[0];
+          pred2.value = currentTeams[1];
+        }
+      }
+      
+      updateAnalysis();
+    }
+
+    function setCycleFilter(filter) {
+      cycleFilter = filter;
+      const buttons = ['cycle_avg', 'cycle_phys', 'cycle_emot', 'cycle_intel'];
+      buttons.forEach(b => {
+        document.getElementById(b).classList.toggle('active', b === `cycle_${filter}`);
+      });
+      renderRoster();
+    }
+
+    function updateAnalysis() {
+      renderRoster();
+      runMatchPrediction();
+    }
+
+    // Render roster of players with biorhythm bars
+    function renderRoster() {
+      const team = document.getElementById('teamSelect').value;
+      const targetDate = document.getElementById('targetDate').value;
+      const roster = generateRoster(team, state.currentYear);
+      
+      document.getElementById('rosterTitleName').innerText = team;
+      document.getElementById('rosterTitleFlag').innerText = getFlag(team);
+      document.getElementById('playerCount').innerText = `${roster.length} Jugadores`;
+      
+      const container = document.getElementById('rosterContainer');
+      
+      container.innerHTML = roster.map(player => {
+        const bio = calculateBiorhythm(player.dob, targetDate);
+        
+        let barHTML = "";
+        
+        const renderBar = (type, label, value) => {
+          const valPercent = Math.abs(value);
+          const valDisplay = value > 0 ? `+${value}%` : `${value}%`;
+          // Color based on value: green positive, red negative, yellow transition
+          let color = "var(--primary)";
+          if (value < -50) color = "var(--physical)";
+          else if (value < 0) color = "#f59e0b";
+          else if (value > 50) color = "#00e676";
+          
+          return `
+            <div class="bar-row">
+              <span class="bar-label ${type}">${label}</span>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: ${valPercent}%; background-color: ${color}; margin-left: ${value < 0 ? 'auto' : '0'};"></div>
+              </div>
+              <span class="bar-value" style="color: ${color}">${valDisplay}</span>
+            </div>
+          `;
+        };
+        
+        if (cycleFilter === 'avg' || cycleFilter === 'phys') barHTML += renderBar('phys', 'Físico', bio.physical);
+        if (cycleFilter === 'avg' || cycleFilter === 'emot') barHTML += renderBar('emot', 'Emocional', bio.emotional);
+        if (cycleFilter === 'avg' || cycleFilter === 'intel') barHTML += renderBar('intel', 'Intelectual', bio.intellectual);
+        if (cycleFilter === 'avg') {
+          // Average row
+          barHTML += renderBar('', 'PROMEDIO', bio.average);
+        }
+        
+        // Calculate player age
+        const age = new Date(targetDate).getFullYear() - new Date(player.dob).getFullYear();
+        
+        return `
+          <div class="player-item-card">
+            <div class="player-meta">
+              <span class="player-name">#${player.num} ${player.name}</span>
+              <span style="font-size:0.8rem; font-weight:700; color:var(--accent);">${player.pos}</span>
+            </div>
+            <div class="player-age-club">
+              Edad: ${age} años (Nació el ${player.dob}) | Club: ${player.club}
+            </div>
+            <div class="biorhythm-bars">
+              ${barHTML}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Run team vs team match forecast prediction
+    function runMatchPrediction() {
+      const t1 = document.getElementById('predictTeam1').value;
+      const t2 = document.getElementById('predictTeam2').value;
+      const targetDate = document.getElementById('targetDate').value;
+      
+      if (t1 === t2) {
+        document.getElementById('foreVerdict').innerText = "Seleccione dos países distintos para comparar.";
+        document.getElementById('foreIndex1').innerText = "--%";
+        document.getElementById('foreIndex2').innerText = "--%";
+        document.getElementById('simulationActionBox').style.display = 'none';
+        return;
+      }
+      
+      const bio1 = calculateTeamBiorhythm(t1, state.currentYear, targetDate);
+      const bio2 = calculateTeamBiorhythm(t2, state.currentYear, targetDate);
+      
+      document.getElementById('foreFlag1').innerText = getFlag(t1);
+      document.getElementById('foreName1').innerText = t1;
+      document.getElementById('foreIndex1').innerText = `${bio1.average > 0 ? `+${bio1.average}` : bio1.average}%`;
+      
+      document.getElementById('foreFlag2').innerText = getFlag(t2);
+      document.getElementById('foreName2').innerText = t2;
+      document.getElementById('foreIndex2').innerText = `${bio2.average > 0 ? `+${bio2.average}` : bio2.average}%`;
+      
+      // Compare values and build verdict
+      let verdict = "";
+      const diff = bio1.average - bio2.average;
+      
+      verdict += `<b>Análisis de Estado Físico:</b> ${t1} se encuentra a un promedio de ${bio1.physical}% y ${t2} a un ${bio2.physical}%. `;
+      if (Math.abs(bio1.physical - bio2.physical) < 15) {
+        verdict += "Ambos equipos están muy parejos físicamente, lo que augura un partido de alta intensidad.<br><br>";
+      } else if (bio1.physical > bio2.physical) {
+        verdict += `Ventaja física notable para <b>${t1}</b>; sus jugadores mostrarán mayor resistencia y velocidad.<br><br>`;
+      } else {
+        verdict += `Ventaja física notable para <b>${t2}</b>; sus jugadores mostrarán mayor resistencia y velocidad.<br><br>`;
+      }
+      
+      verdict += `<b>Análisis Mental (Emocional + Intelectual):</b> `;
+      const mental1 = Math.round((bio1.emotional + bio1.intellectual) / 2);
+      const mental2 = Math.round((bio2.emotional + bio2.intellectual) / 2);
+      
+      if (mental1 > mental2) {
+        verdict += `Los jugadores de <b>${t1}</b> se encuentran en un pico de lucidez e inteligencia emocional (+${mental1}% vs +${mental2}%), lo cual facilitará una mejor toma de decisiones tácticas y resistencia a la presión.<br><br>`;
+      } else {
+        verdict += `Los jugadores de <b>${t2}</b> se encuentran en un pico de lucidez e inteligencia emocional (+${mental2}% vs +${mental1}%), lo cual facilitará una mejor toma de decisiones tácticas y resistencia a la presión.<br><br>`;
+      }
+      
+      // Predict match outcome
+      const simulatedResult = simulateMatchWithBiorhythm(t1, t2, targetDate);
+      predictedScore = {
+        team1: t1,
+        team2: t2,
+        score: simulatedResult
+      };
+      
+      verdict += `<h4 style="color:var(--accent); font-size:1.1rem; margin-bottom: 0.5rem;">Resultado Pronosticado Biológicamente:</h4>`;
+      verdict += `<span style="font-size:2.2rem; font-family:var(--font-title); font-weight:800; color:var(--primary);">${t1} ${simulatedResult[0]} : ${simulatedResult[1]} ${t2}</span>`;
+      
+      if (simulatedResult[0] > simulatedResult[1]) {
+        verdict += `<br>Favorito biológico: <b>${t1}</b> por mejor equilibrio bioenergético general.`;
+      } else if (simulatedResult[1] > simulatedResult[0]) {
+        verdict += `<br>Favorito biológico: <b>${t2}</b> por mejor equilibrio bioenergético general.`;
+      } else {
+        verdict += "<br>Pronóstico: Empate técnico cerrado debido a ciclos cruzados compensados.";
+      }
+      
+      document.getElementById('foreVerdict').innerHTML = verdict;
+      
+      // Enable simulation action if the current year is 2026 (allowing live tracking updates)
+      const actionBox = document.getElementById('simulationActionBox');
+      if (state.currentYear === '2026') {
+        actionBox.style.display = 'block';
+      } else {
+        actionBox.style.display = 'none';
+      }
+    }
+
+    // Save simulated score to results
+    function applySimulatedScore() {
+      if (!predictedScore) return;
+      
+      // Search the match in currentMatches
+      const matchIdx = currentMatches.findIndex(m => 
+        m.date === document.getElementById('targetDate').value && 
+        ((m.team1 === predictedScore.team1 && m.team2 === predictedScore.team2) || 
+         (m.team1 === predictedScore.team2 && m.team2 === predictedScore.team1))
+      );
+      
+      if (matchIdx === -1) {
+        alert(`No se encontró un partido programado entre ${predictedScore.team1} y ${predictedScore.team2} para la fecha ${document.getElementById('targetDate').value}. Ajuste la fecha al día del partido.`);
+        return;
+      }
+      
+      const match = currentMatches[matchIdx];
+      const isReverse = match.team1 === predictedScore.team2;
+      const goals1 = isReverse ? predictedScore.score[1] : predictedScore.score[0];
+      const goals2 = isReverse ? predictedScore.score[0] : predictedScore.score[1];
+      
+      state.userScores[`match_${matchIdx}`] = {
+        score: [goals1, goals2],
+        goals1: [],
+        goals2: []
+      };
+      
+      localStorage.setItem('wc_user_scores', JSON.stringify(state.userScores));
+      alert(`¡Resultado guardado! ${match.team1} ${goals1} : ${goals2} ${match.team2}. Vea la tabla de posiciones o fixture para ver los cambios.`);
+      
+      // Reload page state
+      renderPage(state.currentYear);
+    }
+
+    // Init
+    setupYearSelector(renderPage);
+    renderPage(state.currentYear);
+  </script>
+</body>
+</html>
