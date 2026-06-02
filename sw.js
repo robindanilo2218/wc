@@ -1,4 +1,4 @@
-const CACHE_NAME = 'worldcup-biorhythm-v6';
+const CACHE_NAME = 'worldcup-biorhythm-v7';
 
 // Static UI assets
 const STATIC_ASSETS = [
@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
   'mundialdefutbol2022.html',
   'eliminatorias.html',
   'css/style.css',
+  'js/real_rosters.js',
   'js/app.js',
   'manifest.json'
 ];

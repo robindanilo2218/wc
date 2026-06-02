@@ -12,7 +12,7 @@ try {
 if (typeof window !== 'undefined' && 'caches' in window) {
   caches.keys().then(cacheNames => {
     cacheNames.forEach(cacheName => {
-      if (cacheName !== 'worldcup-biorhythm-v6') {
+      if (cacheName !== 'worldcup-biorhythm-v7') {
         caches.delete(cacheName).then(() => {
           console.log(`[Cache System] Programmatically cleared outdated PWA cache: ${cacheName}`);
         });
@@ -122,7 +122,7 @@ function getSeededRandom(seedString) {
 }
 
 // ─── Real Player Rosters ──────────────────────────────────────────────────────
-const realRosters = {
+const localRealRosters = {
   "Argentina_2022": [
     { num: 1,  name: "Franco Armani",       pos: "Arquero",       dob: "1986-10-16", club: "River Plate (ARG)" },
     { num: 12, name: "Geronimo Rulli",       pos: "Arquero",       dob: "1992-05-20", club: "Villarreal (ESP)" },
@@ -179,6 +179,11 @@ const realRosters = {
     { num: 21, name: "Paulo Dybala",         pos: "Delantero",     dob: "1993-11-15", club: "Roma (ITA)" },
     { num: 22, name: "Valentín Castellanos", pos: "Delantero",     dob: "1998-10-18", club: "Lazio (ITA)" }
   ]
+};
+
+const realRosters = {
+  ...(window.realRosters || {}),
+  ...localRealRosters
 };
 
 // ─── Name Pools for Seeded Generation ────────────────────────────────────────
